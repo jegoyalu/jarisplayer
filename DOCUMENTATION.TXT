@@ -1,0 +1,11 @@
+==================
+Flash Variables
+==================
+
+Here is the list of variables that you can pass to the player.
+
+  * file: This is the actual file that is going to be played.
+  * thumb: Screenshot of the video that is displayed before playing.
+  * logo: An image of your logo that will be displayed on bottom right corner of the player.
+  * alphalogo: A value between 0 and 100 that sets the transparency of your logo.
+  * autostart: A true or false value that indicates to the player if it should auto play the video on load.
