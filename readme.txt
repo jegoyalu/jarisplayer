@@ -1,8 +1,8 @@
 ==================
 Jaris FLV Player
 ==================
-A flash flv player made on SwishMax 2 that can be embedded into any website for free 
-or commercial use. 
+A flash flv player made using haxe and flash develop that can be embedded into any website
+for free or commercial use. 
 
 Web Page: http://jaris.sourceforge.net/
 Project Page: https://sourceforge.net/projects/jaris/
