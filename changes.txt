@@ -1,6 +1,7 @@
 ﻿Jaris FLV Player v2.0.1 beta - 03/08/2010
 
 	* Toggle Quality on Context Menu
+	* Introduction of type parameter
 	* Initial mp3 support
 	* Loader fixes
 	* Controls fixes
