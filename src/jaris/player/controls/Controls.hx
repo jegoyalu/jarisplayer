@@ -1,9 +1,26 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
 
-package jaris.player;
+package jaris.player.controls;
 
 //{Libraries
 import flash.display.GradientType;
@@ -21,6 +38,11 @@ import flash.utils.Timer;
 import jaris.animation.Animation;
 import jaris.display.Loader;
 import jaris.events.PlayerEvents;
+import jaris.player.controls.AspectRatioIcon;
+import jaris.player.controls.FullscreenIcon;
+import jaris.player.controls.PauseIcon;
+import jaris.player.controls.PlayIcon;
+import jaris.player.controls.VolumeIcon;
 import jaris.player.Player;
 import flash.display.Sprite;
 import flash.display.Stage;
@@ -53,11 +75,11 @@ class Controls extends MovieClip {
 	private var _controlsVisible:Bool;
 	private var _seekBar:Sprite;
 	private var _controlsBar:Sprite;
-	private var _playControl:Sprite;
-	private var _pauseControl:Sprite;
-	private var _aspectRatioControl:Sprite;
-	private var _fullscreenControl:Sprite;
-	private var _volumeIcon:Sprite;
+	private var _playControl:PlayIcon;
+	private var _pauseControl:PauseIcon;
+	private var _aspectRatioControl:AspectRatioIcon;
+	private var _fullscreenControl:FullscreenIcon;
+	private var _volumeIcon:VolumeIcon;
 	private var _volumeTrack:Sprite;
 	private var _volumeSlider:Sprite;
 	private var _loader:Loader;
@@ -134,35 +156,20 @@ class Controls extends MovieClip {
 		_controlsBar.visible = true;
 		addChild(_controlsBar);
 		
-		_playControl = new Sprite();
-		_playControl.buttonMode = true;
-		_playControl.useHandCursor = true;
-		_playControl.tabEnabled = false;
+		_playControl = new PlayIcon(0, 0, 0, 0, _controlColor, _hoverColor);
 		_controlsBar.addChild(_playControl);
 		
-		_pauseControl = new Sprite();
+		_pauseControl = new PauseIcon(0, 0, 0, 0, _controlColor, _hoverColor);
 		_pauseControl.visible = false;
-		_pauseControl.buttonMode = true;
-		_pauseControl.useHandCursor = true;
-		_pauseControl.tabEnabled = false;
 		_controlsBar.addChild(_pauseControl);
 		
-		_aspectRatioControl = new Sprite();
-		_aspectRatioControl.buttonMode = true;
-		_aspectRatioControl.useHandCursor = true;
-		_aspectRatioControl.tabEnabled = false;
+		_aspectRatioControl = new AspectRatioIcon(0, 0, 0, 0, _controlColor, _hoverColor);
 		_controlsBar.addChild(_aspectRatioControl);
 		
-		_fullscreenControl = new Sprite();
-		_fullscreenControl.buttonMode = true;
-		_fullscreenControl.useHandCursor = true;
-		_fullscreenControl.tabEnabled = false;
+		_fullscreenControl = new FullscreenIcon(0, 0, 0, 0, _controlColor, _hoverColor);
 		_controlsBar.addChild(_fullscreenControl);
 		
-		_volumeIcon = new Sprite();
-		_volumeIcon.buttonMode = true;
-		_volumeIcon.useHandCursor = true;
-		_volumeIcon.tabEnabled = false;
+		_volumeIcon = new VolumeIcon(0, 0, 0, 0, _controlColor, _hoverColor);
 		_controlsBar.addChild(_volumeIcon);
 		
 		_volumeSlider = new Sprite();
@@ -177,7 +184,7 @@ class Controls extends MovieClip {
 		
 		//{Loader bar
 		_loader = new Loader();
-		_loader.visible = false;
+		_loader.hide();
 		
 		var loaderColors:Array <String> = ["", "", "", ""];
 		loaderColors[0] = Std.string(_brightColor);
@@ -200,23 +207,11 @@ class Controls extends MovieClip {
 		_track.addEventListener(MouseEvent.MOUSE_MOVE, onTrackMouseMove);
 		_track.addEventListener(MouseEvent.MOUSE_OUT, onTrackMouseOut);
 		_trackBar.addEventListener(MouseEvent.MOUSE_OUT, onThumbMouseUp);
-		_controlsBar.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
-		_controlsBar.addEventListener(MouseEvent.MOUSE_OVER, onMouseMove);
 		_playControl.addEventListener(MouseEvent.CLICK, onPlayClick);
-		_playControl.addEventListener(MouseEvent.MOUSE_OVER, onPlayButtonHover);
-		_playControl.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutRedrawControlBar);
 		_pauseControl.addEventListener(MouseEvent.CLICK, onPauseClick);
-		_pauseControl.addEventListener(MouseEvent.MOUSE_OVER, onPauseButtonHover);
-		_pauseControl.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutRedrawControlBar);
 		_aspectRatioControl.addEventListener(MouseEvent.CLICK, onAspectRatioClick);
-		_aspectRatioControl.addEventListener(MouseEvent.MOUSE_OVER, onAspectRatioButtonHover);
-		_aspectRatioControl.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutRedrawControlBar);
 		_fullscreenControl.addEventListener(MouseEvent.CLICK, onFullscreenClick);
-		_fullscreenControl.addEventListener(MouseEvent.MOUSE_OVER, onFullscreenButtonHover);
-		_fullscreenControl.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutRedrawControlBar);
 		_volumeIcon.addEventListener(MouseEvent.CLICK, onVolumeIconClick);
-		_volumeIcon.addEventListener(MouseEvent.MOUSE_OVER, onVolumeIconButtonHover);
-		_volumeIcon.addEventListener(MouseEvent.MOUSE_OUT, onMouseOutRedrawControlBar);
 		_volumeTrack.addEventListener(MouseEvent.CLICK, onVolumeTrackClick);
 		
 		_player.addEventListener(PlayerEvents.FULLSCREEN, onPlayerFullScreen);
@@ -253,7 +248,11 @@ class Controls extends MovieClip {
 		{
 			if (_controlsVisible)
 			{
-				if (_stage.mouseX < _controlsBar.x)
+				if (_stage.mouseX < _controlsBar.x || 
+					_stage.mouseX >= _stage.stageWidth - 1 || 
+					_stage.mouseY >= _stage.stageHeight - 1 ||
+					_stage.mouseY <= 1
+				   )
 				{
 					_controlsVisible = false;
 				}
@@ -310,15 +309,6 @@ class Controls extends MovieClip {
 	}
 	
 	/**
-	 * Used for various controls to redraw controbar after mouse out to clear hover effect
-	 * @param	event
-	 */
-	private function onMouseOutRedrawControlBar(event:MouseEvent)
-	{
-		drawPlayingControls();
-	}
-	
-	/**
 	 * Toggles pause or play
 	 * @param	event
 	 */
@@ -327,20 +317,6 @@ class Controls extends MovieClip {
 		_player.togglePlay();
 		_playControl.visible = !_player.isPlaying();
 		_pauseControl.visible = _player.isPlaying();
-	}
-	
-	/**
-	 * Changes play control color to hover color
-	 * @param	event
-	 */
-	private function onPlayButtonHover(event:MouseEvent):Void
-	{
-		var triangleRatio = ((80 / 100) * (_controlsBar.width - 20));
-		_playControl.graphics.clear();
-		_playControl.graphics.lineStyle();
-		_playControl.graphics.beginFill(_hoverColor);
-		Utils.drawTriangle(_playControl, 0, 0, triangleRatio, 0);
-		_playControl.graphics.endFill();
 	}
 	
 	/**
@@ -355,52 +331,12 @@ class Controls extends MovieClip {
 	}
 	
 	/**
-	 * Changes pause button color to hover color
-	 * @param	event
-	 */
-	private function onPauseButtonHover(event:MouseEvent):Void
-	{
-		_pauseControl.graphics.lineStyle();
-		_pauseControl.graphics.beginFill(_hoverColor);
-		_pauseControl.graphics.drawRoundRect(0, 0, (33 / 100) * _playControl.width, _playControl.height, 6, 6);
-		_pauseControl.graphics.drawRoundRect(_playControl.width - ((33 / 100) * _playControl.width), 0, (33 / 100) * _playControl.width, _playControl.height, 6, 6);
-		_pauseControl.graphics.endFill();
-		
-		_pauseControl.graphics.lineStyle();
-		_pauseControl.graphics.beginFill(0x000000, 0);
-		_pauseControl.graphics.drawRect(0, 0, _pauseControl.width, _playControl.height);
-		_pauseControl.graphics.endFill();
-	}
-	
-	/**
 	 * Toggles betewen aspect ratios
 	 * @param	event
 	 */
 	private function onAspectRatioClick(event:MouseEvent):Void
 	{
 		_player.toggleAspectRatio();
-	}
-	
-	/**
-	 * Changes aspect ratio icon color to hover one
-	 * @param	event
-	 */
-	private function onAspectRatioButtonHover(event:MouseEvent):Void
-	{
-		_aspectRatioControl.graphics.clear();
-		
-		_aspectRatioControl.graphics.lineStyle(2, _hoverColor);
-		_aspectRatioControl.graphics.drawRect(0, 0, _playControl.width, _playControl.height);
-		
-		_aspectRatioControl.graphics.lineStyle();
-		_aspectRatioControl.graphics.beginFill(_hoverColor, 1);
-		_aspectRatioControl.graphics.drawRect(5, 5, _aspectRatioControl.width - 12, _aspectRatioControl.height - 12);
-		_aspectRatioControl.graphics.endFill();
-		
-		_aspectRatioControl.graphics.lineStyle();
-		_aspectRatioControl.graphics.beginFill(0x000000, 0);
-		_aspectRatioControl.graphics.drawRect(0, 0, _aspectRatioControl.width, _aspectRatioControl.height);
-		_aspectRatioControl.graphics.endFill();
 	}
 	
 	/**
@@ -413,48 +349,12 @@ class Controls extends MovieClip {
 	}
 	
 	/**
-	 * Changes fullscreen icon color to hover one
-	 * @param	event
-	 */
-	private function onFullscreenButtonHover(event:MouseEvent):Void
-	{
-		_fullscreenControl.graphics.lineStyle(2, _hoverColor);
-		_fullscreenControl.graphics.beginFill(0x000000, 0);
-		_fullscreenControl.graphics.drawRoundRect(0, 0, _playControl.width, _playControl.height, 6, 6);
-		_fullscreenControl.graphics.endFill();
-		
-		_fullscreenControl.graphics.lineStyle();
-		_fullscreenControl.graphics.beginFill(_hoverColor, 1);
-		_fullscreenControl.graphics.drawRoundRect(3, 3, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(_fullscreenControl.width - 9, 3, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(3, _fullscreenControl.height - 9, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(_fullscreenControl.width - 9, _fullscreenControl.height - 9, 4, 4, 2, 2);
-		_fullscreenControl.graphics.endFill();
-	}
-	
-	/**
 	 * Toggles between mute and unmute
 	 * @param	event
 	 */
 	public function onVolumeIconClick(event: MouseEvent)
 	{
 		_player.toggleMute();
-	}
-	
-	/**
-	 * Changes volume icon color to hover one
-	 * @param	event
-	 */
-	public function onVolumeIconButtonHover(event: MouseEvent)
-	{
-		_volumeIcon.graphics.lineStyle();
-		_volumeIcon.graphics.beginFill(_hoverColor, 1);
-		_volumeIcon.graphics.drawRect(0, ((50 / 100) * _playControl.height) / 2, _playControl.width / 2, ((50 / 100) * _playControl.height));
-		_volumeIcon.graphics.moveTo(_playControl.width / 2, ((50 / 100) * _playControl.height)/2);
-		_volumeIcon.graphics.lineTo(_playControl.width, 0);
-		_volumeIcon.graphics.lineTo(_playControl.width, _playControl.height);
-		_volumeIcon.graphics.lineTo(_playControl.width / 2, ((50 / 100) * _playControl.height) + (((50 / 100) * _playControl.height) / 2));
-		_volumeIcon.graphics.endFill();
 	}
 	
 	/**
@@ -484,7 +384,7 @@ class Controls extends MovieClip {
 	 */
 	private function onPlayerBuffering(event:PlayerEvents):Void
 	{
-		_loader.visible = true;
+		_loader.show();
 	}
 	
 	/**
@@ -493,7 +393,7 @@ class Controls extends MovieClip {
 	 */
 	private function onPlayerNotBuffering(event:PlayerEvents):Void
 	{
-		_loader.visible = false;
+		_loader.hide();
 	}
 		
 	/**
@@ -531,7 +431,10 @@ class Controls extends MovieClip {
 		while (_seekBar.width != _stage.stageWidth && count <= 3)
 		{
 			redrawControls();
-			hideControls();
+			if (_player.isPlaying())
+			{
+				hideControls();
+			}
 			count++;
 		}
 	}
@@ -702,10 +605,10 @@ class Controls extends MovieClip {
 	 */
 	private function drawDownloadProgress():Void
 	{
-		if (_player.getNetStream().bytesTotal > 0)
+		if (_player.getBytesTotal() > 0)
 		{
-			var bytesLoaded:Float = _player.getNetStream().bytesLoaded;
-			var bytesTotal:Float = _player.getNetStream().bytesTotal;
+			var bytesLoaded:Float = _player.getBytesLoaded();
+			var bytesTotal:Float = _player.getBytesTotal();
 			
 			_percentLoaded = bytesLoaded / bytesTotal;
 		}
@@ -771,16 +674,11 @@ class Controls extends MovieClip {
 	{
 		//Reset sprites for redraw
 		_controlsBar.graphics.clear();
-		_playControl.graphics.clear();
-		_pauseControl.graphics.clear();
-		_aspectRatioControl.graphics.clear();
-		_fullscreenControl.graphics.clear();
 		_volumeTrack.graphics.clear();
-		_volumeIcon.graphics.clear();
 		_volumeSlider.graphics.clear();
 		
 		//Draw controls bar
-		var barWidth = 60;
+		var barWidth = _stage.stageHeight < 330 ? 45 : 60;
 		_controlsBar.x = (_stage.stageWidth - barWidth) + 20;
 		_controlsBar.y = 25;
 		
@@ -796,82 +694,47 @@ class Controls extends MovieClip {
 		_controlsBar.width = barWidth;	
 		_controlsBar.height = _stage.stageHeight - 75;
 		
-		var topMargin = 10;
+		var topMargin:Float = _stage.stageHeight < 330 ? 5 : 10;
 		var barCenter:Float = (_controlsBar.width - 20) / 2;
+		var buttonSize:Float = ((80 / 100) * (_controlsBar.width - 20));
+		var buttonX:Float = buttonSize / 2;
 		
 		//Draw playbutton
-		var triangleRatio = ((80 / 100) * (_controlsBar.width - 20));
-		_playControl.x = barCenter - (triangleRatio/2);
-		_playControl.y = topMargin;
-		_playControl.graphics.lineStyle();
-		_playControl.graphics.beginFill(_controlColor);
-		Utils.drawTriangle(_playControl, 0, 0, triangleRatio, 0);
-		_playControl.graphics.endFill();
+		_playControl.setNormalColor(_controlColor);
+		_playControl.setHoverColor(_hoverColor);
+		_playControl.setPosition(barCenter - buttonX, topMargin);
+		_playControl.setSize(buttonSize, buttonSize);
 		
 		//Draw pausebutton
-		_pauseControl.x = _playControl.x;
-		_pauseControl.y = _playControl.y;
-		_pauseControl.graphics.lineStyle();
-		_pauseControl.graphics.beginFill(_controlColor);
-		_pauseControl.graphics.drawRoundRect(0, 0, (33 / 100) * _playControl.width, _playControl.height, 6, 6);
-		_pauseControl.graphics.drawRoundRect(_playControl.width - ((33 / 100) * _playControl.width), 0, (33 / 100) * _playControl.width, _playControl.height, 6, 6);
-		_pauseControl.graphics.endFill();
-		
-		_pauseControl.graphics.lineStyle();
-		_pauseControl.graphics.beginFill(_controlColor, 0);
-		_pauseControl.graphics.drawRect(0, 0, _pauseControl.width, _playControl.height);
-		_pauseControl.graphics.endFill();
+		_pauseControl.setNormalColor(_controlColor);
+		_pauseControl.setHoverColor(_hoverColor);
+		_pauseControl.setPosition(_playControl.x, topMargin);
+		_pauseControl.setSize(buttonSize, buttonSize);
 		
 		//Draw aspec ratio button
-		_aspectRatioControl.x = _playControl.x;
-		_aspectRatioControl.y = _playControl.y + _playControl.height + topMargin;
-		_aspectRatioControl.graphics.lineStyle(2, _controlColor);
-		_aspectRatioControl.graphics.drawRect(0, 0, _playControl.width, _playControl.height);
-		
-		_aspectRatioControl.graphics.lineStyle();
-		_aspectRatioControl.graphics.beginFill(_controlColor, 1);
-		_aspectRatioControl.graphics.drawRect(5, 5, _aspectRatioControl.width - 12, _aspectRatioControl.height - 12);
-		_aspectRatioControl.graphics.endFill();
-		
-		_aspectRatioControl.graphics.lineStyle();
-		_aspectRatioControl.graphics.beginFill(0x000000, 0);
-		_aspectRatioControl.graphics.drawRect(0, 0, _aspectRatioControl.width, _aspectRatioControl.height);
-		_aspectRatioControl.graphics.endFill();
+		_aspectRatioControl.setNormalColor(_controlColor);
+		_aspectRatioControl.setHoverColor(_hoverColor);
+		_aspectRatioControl.setPosition(_playControl.x, (_playControl.y + buttonSize) + topMargin);
+		_aspectRatioControl.setSize(buttonSize, buttonSize);
 		
 		//Draw fullscreen button
-		_fullscreenControl.x = _playControl.x;
-		_fullscreenControl.y = _aspectRatioControl.y + _aspectRatioControl.height + topMargin;
-		_fullscreenControl.graphics.lineStyle(2, _controlColor);
-		_fullscreenControl.graphics.beginFill(0x000000, 0);
-		_fullscreenControl.graphics.drawRoundRect(0, 0, _playControl.width, _playControl.height, 6, 6);
-		_fullscreenControl.graphics.endFill();
-		
-		_fullscreenControl.graphics.lineStyle();
-		_fullscreenControl.graphics.beginFill(_controlColor, 1);
-		_fullscreenControl.graphics.drawRoundRect(3, 3, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(_fullscreenControl.width - 9, 3, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(3, _fullscreenControl.height - 9, 4, 4, 2, 2);
-		_fullscreenControl.graphics.drawRoundRect(_fullscreenControl.width - 9, _fullscreenControl.height - 9, 4, 4, 2, 2);
-		_fullscreenControl.graphics.endFill();
+		_fullscreenControl.setNormalColor(_controlColor);
+		_fullscreenControl.setHoverColor(_hoverColor);
+		_fullscreenControl.setPosition(_playControl.x, (_aspectRatioControl.y + _aspectRatioControl.height) + topMargin);
+		_fullscreenControl.setSize(buttonSize, buttonSize);
 		
 		//Draw volume icon
-		_volumeIcon.x = _playControl.x;
-		_volumeIcon.y = _controlsBar.height - _playControl.height - 10;
-		_volumeIcon.graphics.lineStyle();
-		_volumeIcon.graphics.beginFill(_controlColor, 1);
-		_volumeIcon.graphics.drawRect(0, ((50 / 100) * _playControl.height) / 2, _playControl.width / 2, ((50 / 100) * _playControl.height));
-		_volumeIcon.graphics.moveTo(_playControl.width / 2, ((50 / 100) * _playControl.height)/2);
-		_volumeIcon.graphics.lineTo(_playControl.width, 0);
-		_volumeIcon.graphics.lineTo(_playControl.width, _playControl.height);
-		_volumeIcon.graphics.lineTo(_playControl.width / 2, ((50 / 100) * _playControl.height) + (((50 / 100) * _playControl.height) / 2));
-		_volumeIcon.graphics.endFill();
+		_volumeIcon.setNormalColor(_controlColor);
+		_volumeIcon.setHoverColor(_hoverColor);
+		_volumeIcon.setPosition(_playControl.x, _controlsBar.height - _playControl.height - topMargin);
+		_volumeIcon.setSize(buttonSize, buttonSize);
 		
 		//Draw volume track
 		_volumeTrack.x = _playControl.x;
-		_volumeTrack.y = (_fullscreenControl.y + _fullscreenControl.height) + 10;
+		_volumeTrack.y = (_fullscreenControl.y + _fullscreenControl.height) + topMargin;
 		_volumeTrack.graphics.lineStyle(1, _controlColor);
 		_volumeTrack.graphics.beginFill(0x000000, 0);
-		_volumeTrack.graphics.drawRect(0, 0, _playControl.width / 2, _volumeIcon.y - (_fullscreenControl.y + _fullscreenControl.height) - 20);
+		_volumeTrack.graphics.drawRect(0, 0, _playControl.width / 2, _volumeIcon.y - (_fullscreenControl.y + _fullscreenControl.height) - (topMargin*2));
 		_volumeTrack.graphics.endFill();
 		_volumeTrack.x = barCenter - (_volumeTrack.width / 2);
 		
@@ -896,7 +759,7 @@ class Controls extends MovieClip {
 		if(_controlsBar.visible)
 		{
 			drawPlayingControls();	
-			Animation.slideOut(_controlsBar, "right", 1500);
+			Animation.slideOut(_controlsBar, "right", 800);
 		}
 	}
 	
@@ -908,7 +771,7 @@ class Controls extends MovieClip {
 		if(!_controlsBar.visible)
 		{
 			drawPlayingControls();	
-			Animation.slideIn(_controlsBar, "right", 1500);
+			Animation.slideIn(_controlsBar, "right", 800);
 		}
 	}
 	//}
@@ -926,12 +789,27 @@ class Controls extends MovieClip {
 		_controlColor = colors[2].length > 0? Std.parseInt("0x" + colors[2]) : 0xFFFFFF;
 		_hoverColor = colors[3].length > 0? Std.parseInt("0x" + colors[3]) : 0x67A8C1;
 		
-		var loaderColors:Array <String> = ["", "", "", ""];
+		var loaderColors:Array <String> = ["", ""];
 		loaderColors[0] = colors[1];
 		loaderColors[1] = colors[2];
 		_loader.setColors(loaderColors);
 		
 		redrawControls();
+	}
+	
+	public function setDurationLabel(duration:String):Void
+	{
+		//Person passed time already formatted
+		if (duration.indexOf(":") != -1)
+		{
+			_totalPlayTimeLabel.text = duration;
+		}
+		
+		//Time passed in seconds
+		else
+		{
+			_totalPlayTimeLabel.text = Std.string(Utils.formatTime(Std.parseFloat(duration)));
+		}
 	}
 	//}
 	

@@ -1,8 +1,25 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
- * 
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
+
 
 package jaris;
 
@@ -11,11 +28,11 @@ import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.Lib;
 import flash.system.Capabilities;
-import jaris.display.Loader;
 import jaris.display.Logo;
 import jaris.display.Menu;
 import jaris.display.Poster;
-import jaris.player.Controls;
+import jaris.player.controls.Controls;
+import jaris.player.InputType;
 import jaris.player.Player;
 import jaris.player.StreamType;
 
@@ -45,18 +62,20 @@ class Main
 		var player:Player = new Player();
 		if (Capabilities.playerType == "PlugIn" || Capabilities.playerType == "ActiveX")
 		{
-			var autoStart:Bool = parameters.autostart == "true" || parameters.autostart == ""? true: false;
-			var streamType:String = parameters.streamtype != ""? parameters.streamtype : StreamType.FILE;
+			var autoStart:Bool = parameters.autostart == "true" || parameters.autostart == "" || parameters.autostart == null? true: false;
+			var type:String = parameters.type != "" && parameters.type != null? parameters.type : InputType.VIDEO;
+			var streamType:String = parameters.streamtype != "" && parameters.streamtype != null? parameters.streamtype : StreamType.FILE;
 			
+			player.setType(type);
 			player.setStreamType(streamType);
 			
 			if (autoStart)
 			{
-				player.load(parameters.file);
+				player.load(parameters.file, type, streamType);
 			}
 			else
 			{
-				player.setVideoSource(parameters.file);
+				player.setSource(parameters.file);
 			}
 			
 			player.setPoster(posterImage);
@@ -64,8 +83,9 @@ class Main
 		}
 		else
 		{
-			//For development purpose
-			player.load("jaris-intro.mp4");
+			//For development purposes
+			player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
+			//player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
 		}
 		
 		//Modify Context Menu
@@ -84,6 +104,7 @@ class Main
 		
 		
 		//Draw Controls
+		var duration:String = parameters.duration != "" && parameters.duration != null? parameters.duration : "0";
 		var controls:Controls = new Controls(player);
 		
 		var controlColors:Array <String> = ["", "", "", ""];
@@ -93,6 +114,7 @@ class Main
 		controlColors[3] = parameters.hovercolor != null ? parameters.hovercolor : "";
 		
 		controls.setControlColors(controlColors);
+		controls.setDurationLabel(duration);
 		
 		movieClip.addChild(controls);
 	}

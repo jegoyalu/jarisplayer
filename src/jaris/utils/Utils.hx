@@ -1,6 +1,23 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
 
 package jaris.utils;
@@ -103,21 +120,5 @@ class Utils
 		timeString += hours + minutes + seconds;
 		
 		return timeString;
-	}
-	
-	/**
-	 * Draws a triangle. Im not so good on mathematics so this is incomplete only for play button xD
-	 * @param	object
-	 * @param	x
-	 * @param	y
-	 * @param	ratio
-	 * @param	rotation
-	 */
-	public static function drawTriangle(object:Dynamic, x:Float, y:Float, ratio:Float, rotation:Float=0):Void
-	{	
-		object.graphics.moveTo(x, y);
-		object.graphics.lineTo(x, y + ratio);
-		object.graphics.lineTo(x + ratio, y + (ratio / 2 ));
-		object.graphics.lineTo(x, y);
 	}
 }

@@ -1,6 +1,23 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
 
 package jaris.display;
@@ -21,10 +38,9 @@ class Loader extends Sprite
 	private var _background:Sprite;
 	private var _loaderTrack:Sprite;
 	private var _loaderThumb:Sprite;
-	
+	private var _visible:Bool;
 	private var _brightColor:UInt;
 	private var _controlColor:UInt;
-	
 	private var _forward:Bool;
 
 	public function new() 
@@ -47,6 +63,7 @@ class Loader extends Sprite
 		_controlColor = 0xFFFFFF;
 		
 		_forward = true;
+		_visible = true;
 		
 		addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		_stage.addEventListener(Event.RESIZE, onResize);
@@ -60,26 +77,29 @@ class Loader extends Sprite
 	 */
 	private function onEnterFrame(event:Event):Void
 	{
-		if (_forward)
+		if (_visible)
 		{
-			if ((_loaderThumb.x + _loaderThumb.width) >= (_loaderTrack.x + _loaderTrack.width))
+			if (_forward)
 			{
-				_forward = false;
+				if ((_loaderThumb.x + _loaderThumb.width) >= (_loaderTrack.x + _loaderTrack.width))
+				{
+					_forward = false;
+				}
+				else
+				{
+					_loaderThumb.x += 10;
+				}
 			}
 			else
 			{
-				_loaderThumb.x += 10;
-			}
-		}
-		else
-		{
-			if (_loaderThumb.x  <= _loaderTrack.x)
-			{
-				_forward = true;
-			}
-			else
-			{
-				_loaderThumb.x -= 10;
+				if (_loaderThumb.x  <= _loaderTrack.x)
+				{
+					_forward = true;
+				}
+				else
+				{
+					_loaderThumb.x -= 10;
+				}
 			}
 		}
 	}
@@ -104,9 +124,13 @@ class Loader extends Sprite
 		_loaderThumb.graphics.clear();
 		
 		//Draw background
+		var backgroundWidth:Float = (65 / 100) * _stage.stageWidth;
+		var backgroundHeight:Float = 30;
+		_background.x = (_stage.stageWidth / 2) - (backgroundWidth / 2);
+		_background.y = (_stage.stageHeight / 2) - (backgroundHeight / 2);
 		_background.graphics.lineStyle();
 		_background.graphics.beginFill(_brightColor, 0.5);
-		_background.graphics.drawRect(0, 0, _stage.stageWidth, _stage.stageHeight);
+		_background.graphics.drawRoundRect(0, 0, backgroundWidth, backgroundHeight, 6, 6);
 		_background.graphics.endFill();
 		
 		//Draw track
@@ -126,13 +150,31 @@ class Loader extends Sprite
 	}
 	
 	/**
+	 * Stops drawing the loader
+	 */
+	public function hide():Void
+	{
+		this.visible = false;
+		_visible = false;
+	}
+	
+	/**
+	 * Starts drawing the loader
+	 */
+	public function show():Void
+	{
+		this.visible = true;
+		_visible = true;
+	}
+	
+	/**
 	 * Set loader colors
 	 * @param	colors
 	 */
 	public function setColors(colors:Array<String>):Void
 	{
 		_brightColor = colors[0].length > 0? Std.parseInt("0x" + colors[0]) : 0x4c4c4c;
-		_controlColor = colors[0].length > 0? Std.parseInt("0x" + colors[0]) : 0xFFFFFF;
+		_controlColor = colors[1].length > 0? Std.parseInt("0x" + colors[1]) : 0xFFFFFF;
 		
 		drawLoader();
 	}

@@ -1,6 +1,23 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
 
 package jaris.display;
@@ -49,6 +66,7 @@ class Poster extends Sprite
 		loaderColors[1] = parameters.controlcolor != null ? parameters.controlcolor : "";
 		
 		_loaderStatus = new jaris.display.Loader();
+		_loaderStatus.show();
 		_loaderStatus.setColors(loaderColors);
 		addChild(_loaderStatus);
 		
@@ -63,7 +81,8 @@ class Poster extends Sprite
 	 */
 	private function onNotLoaded(event:IOErrorEvent):Void
 	{
-		//Image not loaded
+		_loaderStatus.hide();
+		removeChild(_loaderStatus);
 	}
 	
 	/**
@@ -72,7 +91,7 @@ class Poster extends Sprite
 	 */
 	private function onLoaderComplete(event:Event):Void
 	{
-		_loaderStatus.visible = false;
+		_loaderStatus.hide();
 		removeChild(_loaderStatus);
 		
 		addChild(_loader);

@@ -1,6 +1,23 @@
-﻿/**
- * ...
+﻿/**    
  * @author Jefferson González
+ * @copyright 2010 Jefferson González
+ *
+ * @license 
+ * This file is part of Jaris FLV Player.
+ *
+ * Jaris FLV Player is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License or GNU LESSER GENERAL 
+ * PUBLIC LICENSE as published by the Free Software Foundation, either version 
+ * 3 of the License, or (at your option) any later version.
+ *
+ * Jaris FLV Player is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License and 
+ * GNU LESSER GENERAL PUBLIC LICENSE along with Jaris FLV Player.  If not, 
+ * see <http://www.gnu.org/licenses/>.
  */
 
 package jaris.player;
@@ -11,16 +28,21 @@ import flash.display.Stage;
 import flash.display.StageDisplayState;
 import flash.events.Event;
 import flash.events.FullScreenEvent;
+import flash.events.IOErrorEvent;
 import flash.events.KeyboardEvent;
 import flash.events.MouseEvent;
 import flash.events.NetStatusEvent;
+import flash.events.ProgressEvent;
 import flash.events.TimerEvent;
 import flash.geom.Rectangle;
 import flash.Lib;
+import flash.media.Sound;
+import flash.media.SoundChannel;
 import flash.media.SoundTransform;
 import flash.media.Video;
 import flash.net.NetConnection;
 import flash.net.NetStream;
+import flash.net.URLRequest;
 import flash.system.Capabilities;
 import flash.ui.Keyboard;
 import flash.ui.Mouse;
@@ -38,33 +60,37 @@ class Player
 	private var _movieClip:MovieClip;
 	private var _connection:NetConnection;
 	private var _stream:NetStream;
-	private var _video:Video;
 	private var _fullscreen:Bool;
 	private var _soundMuted:Bool;
 	private var _volume:Float;
 	private var _mouseVisible:Bool;
-	private var _videoLoaded:Bool;
+	private var _mediaLoaded:Bool;
 	private var _hideMouseTimer:Timer;
-	private var _videoSource:String;
+	private var _checkAudioTimer:Timer;
+	private var _mediaSource:String;
+	private var _type:String;
 	private var _streamType:String;
-	private var _videoServer:String; //For future use on rtmp
+	private var _server:String; //For future use on rtmp
+	private var _sound:Sound;
+	private var _soundChannel:SoundChannel;
+	private var _video:Video;
 	private var _videoWidth:Float;
 	private var _videoHeight:Float;
-	private var _videoDuration:Float;
 	private var _videoMask:Sprite;
+	private var _videoQualityHigh:Bool;
+	private var _mediaDuration:Float;
 	private var _isPlaying:Bool;
 	private var _eventListeners:Dynamic;
 	private var _eventCount:UInt;
 	private var _playerEvent:PlayerEvents;
 	private var _aspectRatio:Float;
 	private var _originalAspectRatio:Float;
-	private var _videoEndReached:Bool;
+	private var _mediaEndReached:Bool;
 	private var _seekPoints:Array<Float>;
 	private var _downloadCompleted:Bool;
 	private var _startTime:Float;
 	private var _firstLoad:Bool;
 	private var _stopped:Bool;
-	private var _videoQualityHigh:Bool;
 	private var _useHardWareScaling:Bool;
 	private var _poster:Poster;
 	//}
@@ -80,8 +106,9 @@ class Player
 		_soundMuted = false;
 		_volume = 1.0;
 		_fullscreen = false;
-		_videoLoaded = false;
+		_mediaLoaded = false;
 		_hideMouseTimer = new Timer(1500);
+		_checkAudioTimer = new Timer(100);
 		_eventListeners = new Array();
 		_eventCount = 0;
 		_playerEvent = new PlayerEvents();
@@ -93,6 +120,17 @@ class Player
 		_videoQualityHigh = false;
 		_isPlaying = false;
 		_streamType = StreamType.FILE;
+		_type = InputType.VIDEO;
+		_server = "";
+		//}
+		
+		//{Initialize sound object
+		_sound = new Sound();
+		_sound.addEventListener(Event.COMPLETE, onSoundComplete);
+        _sound.addEventListener(Event.ID3, onSoundID3);
+        _sound.addEventListener(IOErrorEvent.IO_ERROR, onSoundIOError);
+        _sound.addEventListener(ProgressEvent.PROGRESS, onSoundProgress);
+
 		//}
 		
 		//{Initialize video and connection objets
@@ -118,6 +156,7 @@ class Player
 		_stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		_stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
 		_hideMouseTimer.addEventListener(TimerEvent.TIMER, hideMouseTimer);
+		_checkAudioTimer.addEventListener(TimerEvent.TIMER, checkAudioTimer);
 		_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 		//}
 	}
@@ -145,6 +184,22 @@ class Player
 			}
 		}
 	}
+	
+	/**
+	 * To check if the sound finished playing
+	 * @param	event
+	 */
+	private function checkAudioTimer(event:TimerEvent):Void
+	{
+		if (_soundChannel.position + 100 >= _sound.length)
+		{
+			_isPlaying = false;
+			_mediaEndReached = true;
+			callEvents(PlayerEvents.PLAYBACK_FINISHED);
+			
+			_checkAudioTimer.stop();
+		}
+	}
 	//}
 	
 	
@@ -161,25 +216,25 @@ class Player
 				callEvents(PlayerEvents.CONNECTION_SUCCESS);
 
 			case "NetStream.Play.StreamNotFound":
-				trace("Stream not found: " + _videoSource);
+				trace("Stream not found: " + _mediaSource);
 				callEvents(PlayerEvents.CONNECTION_FAILED);
 				
 			case "NetStream.Play.Stop":
 				if (_isPlaying) { _stream.togglePause(); }
 				_isPlaying = false;
-				_videoEndReached = true;
+				_mediaEndReached = true;
 				callEvents(PlayerEvents.PLAYBACK_FINISHED);
 				
 			case "NetStream.Play.Start":
 				_isPlaying = true;
-				_videoEndReached = false;
+				_mediaEndReached = false;
 				if (_stream.bytesLoaded != _stream.bytesTotal)
 				{
 					callEvents(PlayerEvents.BUFFERING);
 				}
 				
 			case "NetStream.Seek.Notify":
-				_videoEndReached = false;
+				_mediaEndReached = false;
 				
 			case "NetStream.Buffer.Empty":
 				if (_stream.bytesLoaded != _stream.bytesTotal)
@@ -287,7 +342,7 @@ class Player
 			_hideMouseTimer.start();
 			
 			//If browser player resume playing
-			if ((Capabilities.playerType == "ActiveX" || Capabilities.playerType == "PlugIn") && isPlaying())
+			if ((Capabilities.playerType == "ActiveX" || Capabilities.playerType == "PlugIn"))
 			{
 				togglePlay();
 			}
@@ -352,12 +407,12 @@ class Player
 				}
 			}
 			
-			_videoLoaded = true;
-			_videoDuration = data.duration;
+			_mediaLoaded = true;
+			_mediaDuration = data.duration;
 			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
 			_originalAspectRatio = _aspectRatio;
 			
-			_playerEvent.duration = _videoDuration;
+			_playerEvent.duration = _mediaDuration;
 			_playerEvent.width = _videoWidth;
 			_playerEvent.height = _videoHeight;
 			_playerEvent.aspectRatio = _aspectRatio;
@@ -374,7 +429,87 @@ class Player
 	 */
 	private function onLastSecond(data:Dynamic):Void
 	{
+		//To work on it?
+	}
+	
+	/**
+	 * When sound finished downloading
+	 * @param	event
+	 */
+	private function onSoundComplete(event:Event)
+	{
+		_mediaDuration = _sound.length / 1000;
+		_playerEvent.duration = _sound.length / 1000;
+		_downloadCompleted = true;
 		
+		callEvents(PlayerEvents.META_RECIEVED);
+	}
+	
+	/**
+	 * Mimic stream onMetaData
+	 * @param	event
+	 */
+	private function onSoundID3(event:Event)
+	{
+		if (_firstLoad)
+		{
+			_soundChannel = _sound.play();
+			_checkAudioTimer.start();
+			
+			_isPlaying = true;
+			
+			if (_poster != null)
+			{
+				_videoWidth = _poster.width;
+				_videoHeight = _poster.height;
+			}
+			
+			_firstLoad = false;
+			
+			_mediaLoaded = true;
+			_mediaDuration = ((_sound.bytesTotal / _sound.bytesLoaded) * _sound.length) / 1000;
+			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
+			_originalAspectRatio = _aspectRatio;
+			
+			_playerEvent.duration = _mediaDuration;
+			_playerEvent.width = _videoWidth;
+			_playerEvent.height = _videoHeight;
+			_playerEvent.aspectRatio = _aspectRatio;
+			
+			callEvents(PlayerEvents.CONNECTION_SUCCESS);
+			callEvents(PlayerEvents.META_RECIEVED);
+			
+			resizeAndCenterPlayer();
+		}
+	}
+	
+	/**
+	 * Dispatch connection failed event on error
+	 * @param	event
+	 */
+	private function onSoundIOError(event:IOErrorEvent)
+	{
+		callEvents(PlayerEvents.CONNECTION_FAILED);
+	}
+	
+	/**
+	 * Monitor sound download progress
+	 * @param	event
+	 */
+	private function onSoundProgress(event:ProgressEvent)
+	{
+		if (_sound.isBuffering)
+		{
+			callEvents(PlayerEvents.BUFFERING);
+		}
+		else
+		{
+			callEvents(PlayerEvents.NOT_BUFFERING);
+		}
+		
+		_mediaDuration = ((_sound.bytesTotal / _sound.bytesLoaded) * _sound.length) / 1000;
+		_playerEvent.duration = _mediaDuration;
+		callEvents(PlayerEvents.META_RECIEVED);
 	}
 	//}
 	
@@ -459,9 +594,12 @@ class Player
 	 */
 	private function canSeek(time:Float):Bool
 	{
-		time = getBestSeekPoint(time);
+		if (_type == InputType.VIDEO)
+		{
+			time = getBestSeekPoint(time);
+		}
 		
-		var cacheTotal = Math.floor((getDuration() - _startTime) * (_stream.bytesLoaded / _stream.bytesTotal)) - 1;
+		var cacheTotal = Math.floor((getDuration() - _startTime) * (getBytesLoaded() / getBytesTotal())) - 1;
 
 		if(time >= _startTime && time < _startTime + cacheTotal)
 		{
@@ -490,21 +628,31 @@ class Player
 	 * Loads a video and starts playing it
 	 * @param	video video url to load
 	 */
-	public function load(video:String, server:String=""):Void
+	public function load(source:String, type:String="video", streamType:String="file", server:String=""):Void
 	{
+		_type = type;
+		_streamType = streamType;
+		_mediaSource = source;
 		_stopped = false;
-		_videoSource = video;
-		_videoLoaded = false;
+		_mediaLoaded = false;
 		_firstLoad = true;
 		_startTime = 0;
 		_downloadCompleted = false;
 		_seekPoints = new Array();
+		_server = server;
 		
 		callEvents(PlayerEvents.BUFFERING);
 		
-		_stream.bufferTime = 10;
-		_stream.play(video);
-		_stream.client = this;
+		if (_type == InputType.VIDEO)
+		{	
+			_stream.bufferTime = 10;
+			_stream.play(source);
+			_stream.client = this;
+		}
+		else if(_type == InputType.AUDIO && _streamType == StreamType.FILE)
+		{
+			_sound.load(new URLRequest(source));
+		}
 	}
 	
 	/**
@@ -512,12 +660,21 @@ class Player
 	 */
 	public function stopAndClose():Void
 	{
-		_videoLoaded = false;
+		_mediaLoaded = false;
 		_isPlaying = false;
 		_stopped = true;
 		_startTime = 0;
 		_poster.visible = true;
-		_stream.close();
+		
+		if (_type == InputType.VIDEO)
+		{
+			_stream.close();
+		}
+		else
+		{
+			_soundChannel.stop();
+			_sound.close();
+		}
 	}
 	
 	/**
@@ -561,7 +718,19 @@ class Player
 	{
 		if (_startTime <= 1 && _downloadCompleted)
 		{
-			_stream.seek(seekTime);
+			if (_type == InputType.VIDEO)
+			{
+				_stream.seek(seekTime);
+			}
+			else if (_type == InputType.AUDIO)
+			{
+				_soundChannel.stop();
+				_soundChannel = _sound.play(seekTime * 1000);
+				if (!_isPlaying)
+				{
+					_soundChannel.stop();
+				}
+			}
 		}
 		else if(_seekPoints.length > 0 && _streamType == StreamType.PSEUDOSTREAM)
 		{
@@ -574,13 +743,13 @@ class Player
 			else if(seekTime != _startTime)
 			{	
 				var url:String;
-				if (_videoSource.indexOf("?") != -1)
+				if (_mediaSource.indexOf("?") != -1)
 				{
-					url = _videoSource + "&start=" + seekTime;
+					url = _mediaSource + "&start=" + seekTime;
 				}
 				else
 				{
-					url = _videoSource + "?start=" + seekTime;
+					url = _mediaSource + "?start=" + seekTime;
 				}
 				
 				_startTime = seekTime;
@@ -589,8 +758,20 @@ class Player
 		}
 		else if(canSeek(seekTime))
 		{
-			seekTime = getBestSeekPoint(seekTime);
-			_stream.seek(seekTime);
+			if (_type == InputType.VIDEO)
+			{
+				seekTime = getBestSeekPoint(seekTime);
+				_stream.seek(seekTime);
+			}
+			else if (_type == InputType.AUDIO)
+			{
+				_soundChannel.stop();
+				_soundChannel = _sound.play(seekTime * 1000);
+				if (!_isPlaying)
+				{
+					_soundChannel.stop();
+				}
+			}
 		}
 		
 		return seekTime;
@@ -606,7 +787,7 @@ class Player
 	}
 	
 	/**
-	 * Cycle betewen aspect rations
+	 * Cycle betewen aspect ratios
 	 * @return new aspect ratio in use
 	 */
 	public function toggleAspectRatio():Float
@@ -654,30 +835,61 @@ class Player
 	 */
 	public function togglePlay():Bool
 	{
-		if (_videoLoaded)
+		if (_mediaLoaded)
 		{
-			if (_videoEndReached)
+			if (_mediaEndReached)
 			{
-				_videoEndReached = false;
-				_stream.seek(0);
-				_stream.togglePause();
+				_mediaEndReached = false;
+				
+				if (_type == InputType.VIDEO)
+				{
+					_stream.seek(0);
+					_stream.togglePause();
+				}
+				else if (_type == InputType.AUDIO)
+				{
+					_checkAudioTimer.start();
+					_soundChannel = _sound.play();
+				}
 			}
-			else if (_videoLoaded)
+			else if (_mediaLoaded)
 			{
-				_stream.togglePause();
+				if (_type == InputType.VIDEO)
+				{
+					_stream.togglePause();
+				}
+				else if (_type == InputType.AUDIO)
+				{
+					if (_isPlaying)
+					{
+						_soundChannel.stop();
+					}
+					else
+					{
+						//If end of audio reached start from beggining
+						if (_soundChannel.position + 100 >= _sound.length)
+						{
+							_soundChannel = _sound.play();
+						}
+						else 
+						{
+							_soundChannel = _sound.play(_soundChannel.position);
+						}
+					}
+				}
 			}
 			else if (_stopped)
 			{
-				load(_videoSource);
+				load(_mediaSource, _type, _streamType, _server);
 			}
 			
 			_isPlaying = !_isPlaying;
 			
 			return _isPlaying;
 		}
-		else if(_videoSource != "")
+		else if(_mediaSource != "")
 		{
-			load(_videoSource);
+			load(_mediaSource, _type, _streamType, _server);
 			
 			return true;
 		}
@@ -746,6 +958,7 @@ class Player
 	public function toggleMute():Bool
 	{
 		var soundTransform:SoundTransform = new SoundTransform();
+		var isMute:Bool;
 		
 		//unmute sound
 		if (_soundMuted)
@@ -764,7 +977,7 @@ class Player
 			
 			_stream.soundTransform = soundTransform;
 			
-			return false;
+			isMute =  false;
 		}
 		
 		//mute sound
@@ -775,8 +988,19 @@ class Player
 			soundTransform.volume = 0;
 			_stream.soundTransform = soundTransform;
 			
-			return true;
+			isMute = true;
 		}
+		
+		if (_type == InputType.VIDEO)
+		{
+			_stream.soundTransform = soundTransform;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			_soundChannel.soundTransform = soundTransform;
+		}
+		
+		return isMute;
 	}
 	
 	/**
@@ -804,9 +1028,18 @@ class Player
 		//raise volume if not already at max
 		if (_volume < 1)
 		{
-			_volume = _stream.soundTransform.volume + (10/100);
-			soundTransform.volume = _volume;
-			_stream.soundTransform = soundTransform;
+			if (_type == InputType.VIDEO)
+			{
+				_volume = _stream.soundTransform.volume + (10/100);
+				soundTransform.volume = _volume;
+				_stream.soundTransform = soundTransform;
+			}
+			else if (_type == InputType.AUDIO)
+			{
+				_volume = _soundChannel.soundTransform.volume + (10/100);
+				soundTransform.volume = _volume;
+				_soundChannel.soundTransform = soundTransform;
+			}
 		}
 		
 		//reset volume to 1.0 if already reached max
@@ -828,10 +1061,19 @@ class Player
 		
 		//lower sound
 		if(!_soundMuted)
-		{
-			_volume = _stream.soundTransform.volume - (10/100);
-			soundTransform.volume = _volume;
-			_stream.soundTransform = soundTransform;
+		{	
+			if (_type == InputType.VIDEO)
+			{
+				_volume = _stream.soundTransform.volume - (10/100);
+				soundTransform.volume = _volume;
+				_stream.soundTransform = soundTransform;
+			}
+			else if (_type == InputType.AUDIO)
+			{
+				_volume = _soundChannel.soundTransform.volume - (10/100);
+				soundTransform.volume = _volume;
+				_soundChannel.soundTransform = soundTransform;
+			}
 			
 			//if volume reached min is muted
 			if (_volume <= 0)
@@ -847,6 +1089,15 @@ class Player
 	
 	
 	//{Setters
+	/**
+	 * Set input type
+	 * @param	type Allowable values are audio, video
+	 */
+	public function setType(type:String):Void
+	{
+		_type = type;
+	}
+	
 	/**
 	 * Set streaming type
 	 * @param	streamType Allowable values are file, http, rmtp
@@ -870,9 +1121,9 @@ class Player
 	 * media is loaded automatically
 	 * @param	source
 	 */
-	public function setVideoSource(source):Void
+	public function setSource(source):Void
 	{
-		_videoSource = source;
+		_mediaSource = source;
 	}
 	
 	/**
@@ -895,7 +1146,15 @@ class Player
 		}
 		
 		soundTransform.volume = volume;
-		_stream.soundTransform = soundTransform;
+		
+		if (_type == InputType.VIDEO)
+		{
+			_stream.soundTransform = soundTransform;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			_soundChannel.soundTransform = soundTransform;
+		}
 	}
 	
 	/**
@@ -927,7 +1186,18 @@ class Player
 	 */
 	public function getTime():Float
 	{
-		return _stream.time;
+		var time:Float = 0;
+		
+		if(_type == InputType.VIDEO)
+		{
+			time = _stream.time;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			time = _soundChannel.position / 1000;
+		}
+		
+		return time;
 	}
 	
 	/**
@@ -958,21 +1228,12 @@ class Player
 	}
 	
 	/**
-	 * The stream associated with the player
-	 * @return netstream object
-	 */
-	public function getNetStream():NetStream
-	{
-		return _stream;
-	}
-	
-	/**
 	 * Total duration time of the loaded media
 	 * @return time in seconds
 	 */
 	public function getDuration():Float
 	{
-		return _videoDuration;
+		return _mediaDuration;
 	}
 	
 	/**
@@ -985,6 +1246,15 @@ class Player
 	}
 	
 	/**
+	 * The stream associated with the player
+	 * @return netstream object
+	 */
+	public function getNetStream():NetStream
+	{
+		return _stream;
+	}
+	
+	/**
 	 * Video object associated to the player
 	 * @return video object for further manipulation
 	 */
@@ -994,12 +1264,79 @@ class Player
 	}
 	
 	/**
+	 * Sound object associated to the player
+	 * @return sound object for further manipulation
+	 */
+	public function getSound():Sound
+	{
+		return _sound;
+	}
+	
+	/**
 	 * The current sound state
 	 * @return true if mute otherwise false
 	 */
 	public function getMute():Bool
 	{
 		return _soundMuted;
+	}
+	
+	/**
+	 * The amount of total bytes
+	 * @return amount of bytes
+	 */
+	public function getBytesTotal():Float
+	{
+		var bytesTotal:Float = 0;
+		
+		if (_type == InputType.VIDEO)
+		{
+			bytesTotal = _stream.bytesTotal;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			bytesTotal = _sound.bytesTotal;
+		}
+		
+		return bytesTotal;
+	}
+	
+	/**
+	 * The amount of bytes loaded
+	 * @return amount of bytes
+	 */
+	public function getBytesLoaded():Float
+	{
+		var bytesLoaded:Float = 0;
+		
+		if (_type == InputType.VIDEO)
+		{
+			bytesLoaded = _stream.bytesLoaded;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			bytesLoaded = _sound.bytesLoaded;
+		}
+		
+		return bytesLoaded;
+	}
+	
+	/**
+	 * Current playing file type
+	 * @return audio or video
+	 */
+	public function getType():String
+	{
+		return _type;
+	}
+	
+	/**
+	 * To check current quality mode
+	 * @return true if high quality false if low
+	 */
+	public function getQuality():Bool
+	{
+		return _videoQualityHigh;
 	}
 	//}
 }

@@ -1,0 +1,127 @@
+==================
+How To!
+==================
+
+The above example is one of the ways to embed the player to your html files. Just copy and paste. 
+
+---------------------------------------Code------------------------------------------
+<object
+  classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,45,2"
+  width="640" height="360"
+>
+	<param name="allowFullscreen" value="true">
+	<param name="allowScriptAccess" value="always">
+	<param name="movie" value="JarisFLVPlayer.swf">
+	<param name="bgcolor" value="#000000">
+	<param name="quality" value="high">
+	<param name="scale" value="noscale">
+	<param name="wmode" value="opaque">
+	<param name="flashvars" value="file=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1">
+	<param name="seamlesstabbing" value="false">
+	<embed
+	  type="application/x-shockwave-flash"
+	  pluginspage="http://www.adobe.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash"
+	  width="640" height="360"
+	  src="JarisFLVPlayer.swf"
+	  allowfullscreen="true" 
+	  allowscriptaccess="always"
+	  bgcolor="#000000"
+	  quality="high"
+	  scale="noscale"
+	  wmode="opaque"
+	  flashvars="file=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1"
+	  seamlesstabbing="false"
+	>
+	  <noembed>
+	  </noembed>
+	</embed>
+</object>
+--------------------------------------End-Code---------------------------------------
+
+==================
+Flash Variables
+==================
+
+Here is the list of variables that you can pass to the player.
+
+    * file:
+      This is the actual file that is going to be played.
+	  
+	* type:
+      The type of file to play, allowable values are: audio, video.
+	  
+    * streamtype:
+      The stream type of the file, allowable values are: file, http (for pseudostream) and soon rmtp.
+	  
+	* duration:
+      Total times in seconds for input media or formatted string in the format hh:mm:ss
+    
+	* poster:
+      Screenshot of the video that is displayed before playing.
+    
+	* autostart:
+      A true or false value that indicates to the player if it should auto play the video on load.
+    
+	* logo:
+      An image of your logo.
+    
+	* logoposition:
+      The position of the logo in the player, permitted values are: top left, top right, bottom left and bottom right
+    
+	* logoalpha:
+      The transparency percent. values permitted 1 to 100
+    
+	* logowidth:
+      The width in pixels of the logo.
+    
+	* logolink:
+      A link to a webpage when the logo is clicked.
+    
+	* hardwarescaling:
+      Enable or disable hardware scaling on fullscreen mode, values: false or true
+    
+	* logoalpha:
+      The transparency percent. values permitted 1 to 100
+    
+	* darkcolor:
+      The darker color of player controls
+    
+	* brightcolor:
+      The bright color of player controls
+    
+	* controlcolor:
+      The face color of controls
+    
+	* hovercolor:
+      On mouse hover color for controls
+
+==================	  
+Keyboard Shortcuts
+==================
+
+Here is the list of keyboard shortcuts to control Jaris Player.
+
+    * SPACE
+      Play or pause video.
+	  
+    * TAB
+      Switch between different aspect ratios.
+    
+	* UP
+      Raise volume
+    
+	* DOWN
+      Lower volume
+    
+	* LEFT
+      Rewind
+    
+	* RIGHT
+      Forward
+    
+	* M
+      Mute or unmute volume.
+    
+	* F
+      Swtich to fullscreen mode.

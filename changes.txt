@@ -1,0 +1,36 @@
+﻿Jaris FLV Player v2.0.1 beta - 03/08/2010
+
+	* Toggle Quality on Context Menu
+	* Initial mp3 support
+	* Loader fixes
+	* Controls fixes
+	* Other refinements and fixes
+	* Duration parameter to indicate how much total time takes input media
+	
+Jaris FLV Player v2.0.0 beta - 03/05/2010
+
+	* Moved from swishmax 2 to haxe and flashdevelop
+	* New GUI completely written in haxe (AS3)
+	* Hide controls on fullscreen
+	* Recalculate aspect ratio on fullscreen.
+    * Redraw controls on fullscreen and normal switching.
+	* Initial pseudo streaming support
+	* Compiled to flash 10
+	* Now uses as3 libraries
+	* Optional Hardware scaling
+	* Video smoothing enabled by default
+	* Added custom context menu
+	* Other refinements and fixes
+	
+Jaris FLV Player v1.0 - 05/21/2008
+
+    * Calculates video aspect ratio on player load.
+    * Support Flash 9 Stage.displayState (Fullscreen mode).
+    * Support for preview image of the video.
+    * Display buffering message.
+    * Internal volume control.
+    * Back and forward control.
+    * Display the actual playing time and total time.
+    * Support for logo image on the fly.
+    * Flag to autostart the video on player load.
+
