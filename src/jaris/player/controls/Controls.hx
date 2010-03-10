@@ -580,9 +580,11 @@ class Controls extends MovieClip {
 	 */
 	private function redrawControls():Void
 	{	
+		drawSeekControls();
+		
 		var count:UInt = 1;
 		//draw until seekbar width == stage width
-		if(_seekBar.width != _stage.stageWidth && count <= 3)
+		while(_seekBar.width != _stage.stageWidth && count <= 3)
 		{
 			drawSeekControls();
 			
@@ -626,6 +628,7 @@ class Controls extends MovieClip {
 		_track.graphics.clear();
 		_thumb.graphics.clear();
 		
+		//Draw seek bar
 		_seekBar.x = 0;
 		_seekBar.y = _stage.stageHeight - 25;
 		_seekBar.graphics.lineStyle();
@@ -635,6 +638,7 @@ class Controls extends MovieClip {
 		_seekBar.width = _stage.stageWidth;	
 		_seekBar.height = 25;
 		
+		//Draw trackbar
 		var matrix:Matrix = new Matrix(  );
 		matrix.createGradientBox(_seekBar.width, 25, Utils.degreesToRadians(90), 0, _seekBar.height-25);
 		var colors:Array<UInt> = [_brightColor, _darkColor];
@@ -645,20 +649,25 @@ class Controls extends MovieClip {
 		_trackBar.graphics.drawRect(0, 0, _seekBar.width, _seekBar.height);
 		_trackBar.graphics.endFill(  );
 		
+		//Draw current play time label
 		_currentPlayTimeLabel.textColor = _controlColor;
 		_currentPlayTimeLabel.y = _seekBar.height - (_trackBar.height/2)-(_currentPlayTimeLabel.height/2);
 		
+		//Draw total play time label
 		_totalPlayTimeLabel.textColor = _controlColor;
 		_totalPlayTimeLabel.x = _seekBar.width - _totalPlayTimeLabel.width;
 		_totalPlayTimeLabel.y = _seekBar.height - (_trackBar.height / 2) - (_totalPlayTimeLabel.height / 2);
 		
+		//Draw download progress
 		drawDownloadProgress();
 		
+		//Draw track place holder for drag
 		_track.graphics.lineStyle(1, _controlColor);
 		_track.graphics.beginFill(_darkColor, 0);
 		_track.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height / 2) - (10 / 2), _seekBar.width - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
 		_track.graphics.endFill();
 		
+		//Draw thumb
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_controlColor);
 		_thumb.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height/2)-(10/2), 10, 10);

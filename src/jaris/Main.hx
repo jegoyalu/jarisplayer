@@ -118,8 +118,8 @@ class Main
 		controlColors[2] = parameters.controlcolor != null ? parameters.controlcolor : "";
 		controlColors[3] = parameters.hovercolor != null ? parameters.hovercolor : "";
 		
-		controls.setControlColors(controlColors);
 		controls.setDurationLabel(duration);
+		controls.setControlColors(controlColors);
 		
 		movieClip.addChild(controls);
 	}
