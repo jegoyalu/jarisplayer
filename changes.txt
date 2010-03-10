@@ -4,6 +4,7 @@
 	* Fixed not getting initial stage widht and height on IE when using swfobjects
 	* Some more improvements to controls on short heights
 	* Other improvements and code refactoring
+	* added id3 info to player events
 	
 Jaris FLV Player v2.0.1 beta - 03/08/2010
 
