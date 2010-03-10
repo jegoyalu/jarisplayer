@@ -23,9 +23,11 @@
 
 package jaris;
 
+import flash.display.MovieClip;
 import flash.display.Stage;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
+import flash.events.Event;
 import flash.Lib;
 import flash.system.Capabilities;
 import jaris.display.Logo;
@@ -41,11 +43,14 @@ import jaris.player.StreamType;
  */
 class Main 
 {
-	static function main() 
+	static var stage:Stage;
+	static var movieClip:MovieClip;
+	
+	static function main():Void
 	{
 		//Initialize stage and main movie clip
-		var stage = Lib.current.stage;
-		var movieClip = Lib.current;
+		stage = Lib.current.stage;
+		movieClip = Lib.current;
 		
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		stage.align = StageAlign.TOP_LEFT;
@@ -84,8 +89,8 @@ class Main
 		else
 		{
 			//For development purposes
-			player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
-			//player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
+			//player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
+			player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
 		}
 		
 		//Modify Context Menu

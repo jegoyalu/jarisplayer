@@ -22,6 +22,9 @@
 
 package jaris.player;
 
+/**
+ * Stores the identifiers for loaded media type
+ */
 class InputType 
 {
 	public static var AUDIO = "audio";

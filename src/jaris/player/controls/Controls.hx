@@ -217,7 +217,7 @@ class Controls extends MovieClip {
 		_player.addEventListener(PlayerEvents.FULLSCREEN, onPlayerFullScreen);
 		_player.addEventListener(PlayerEvents.MOUSE_HIDE, onPlayerMouseHide);
 		_player.addEventListener(PlayerEvents.MOUSE_SHOW, onPlayerMouseShow);
-		_player.addEventListener(PlayerEvents.META_RECIEVED, onPlayerMetaData);
+		_player.addEventListener(PlayerEvents.MEDIA_INITIALIZED, onPlayerMediaInitialized);
 		_player.addEventListener(PlayerEvents.BUFFERING, onPlayerBuffering);
 		_player.addEventListener(PlayerEvents.NOT_BUFFERING, onPlayerNotBuffering);
 		_player.addEventListener(PlayerEvents.RESIZE, onPlayerResize);
@@ -352,7 +352,7 @@ class Controls extends MovieClip {
 	 * Toggles between mute and unmute
 	 * @param	event
 	 */
-	public function onVolumeIconClick(event: MouseEvent)
+	private function onVolumeIconClick(event: MouseEvent)
 	{
 		_player.toggleMute();
 	}
@@ -424,19 +424,6 @@ class Controls extends MovieClip {
 	private function onPlayerFullScreen(event:PlayerEvents)
 	{
 		redrawControls();
-		
-		//Need to check when hardware scaling enabled
-		//Limit check to 3 in case of hanging (infinite loop)
-		var count:UInt = 1;
-		while (_seekBar.width != _stage.stageWidth && count <= 3)
-		{
-			redrawControls();
-			if (_player.isPlaying())
-			{
-				hideControls();
-			}
-			count++;
-		}
 	}
 	
 	/**
@@ -452,13 +439,15 @@ class Controls extends MovieClip {
 			
 			_player.getVideo().x = (_stage.stageWidth / 2) - (_player.getVideo().width / 2);
 		}
+		
+		redrawControls();
 	}
 	
 	/**
 	 * Updates media total time duration.
 	 * @param	event
 	 */
-	private function onPlayerMetaData(event:PlayerEvents):Void
+	private function onPlayerMediaInitialized(event:PlayerEvents):Void
 	{
 		_totalPlayTimeLabel.text = Utils.formatTime(event.duration);
 		_playControl.visible = !_player.isPlaying();
@@ -590,7 +579,7 @@ class Controls extends MovieClip {
 	 * Clears all current graphics a draw new ones
 	 */
 	private function redrawControls():Void
-	{
+	{	
 		_seekBar.graphics.clear();
 		_trackBar.graphics.clear();
 		_track.graphics.clear();
@@ -598,6 +587,12 @@ class Controls extends MovieClip {
 		
 		drawSeekControls();
 		drawPlayingControls();
+		
+		//draw until seekbar width == stage width
+		if(_seekBar.width != _stage.stageWidth)
+		{
+			redrawControls();
+		}
 	}
 	
 	/**
@@ -679,8 +674,9 @@ class Controls extends MovieClip {
 		
 		//Draw controls bar
 		var barWidth = _stage.stageHeight < 330 ? 45 : 60;
+		var barMargin = _stage.stageHeight < 330 ? 5 : 25;
 		_controlsBar.x = (_stage.stageWidth - barWidth) + 20;
-		_controlsBar.y = 25;
+		_controlsBar.y = barMargin;
 		
 		var matrix:Matrix = new Matrix(  );
 		matrix.createGradientBox(barWidth, _stage.stageHeight - 75, Utils.degreesToRadians(0), 0, _stage.stageHeight-75);
@@ -689,10 +685,10 @@ class Controls extends MovieClip {
 		var ratios:Array<UInt> = [0, 255];
 		_controlsBar.graphics.lineStyle();
 		_controlsBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
-		_controlsBar.graphics.drawRoundRect(0, 0, barWidth, _stage.stageHeight-75, 20, 20);
+		_controlsBar.graphics.drawRoundRect(0, 0, barWidth, _stage.stageHeight-_seekBar.height-(barMargin * 2), 20, 20);
 		_controlsBar.graphics.endFill();
 		_controlsBar.width = barWidth;	
-		_controlsBar.height = _stage.stageHeight - 75;
+		_controlsBar.height = _stage.stageHeight - _seekBar.height - (barMargin * 2);
 		
 		var topMargin:Float = _stage.stageHeight < 330 ? 5 : 10;
 		var barCenter:Float = (_controlsBar.width - 20) / 2;

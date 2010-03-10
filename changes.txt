@@ -1,4 +1,11 @@
-﻿Jaris FLV Player v2.0.1 beta - 03/08/2010
+﻿Jaris FLV Player v2.0.2 beta - 03/09/2010
+
+	* Implement EventDispatcher on Player class instead of using custom event mechanism
+	* Fixed not getting initial stage widht and height on IE when using swfobjects
+	* Some more improvements to controls on short heights
+	* Other improvements and code refactoring
+	
+Jaris FLV Player v2.0.1 beta - 03/08/2010
 
 	* Toggle Quality on Context Menu
 	* Introduction of type parameter

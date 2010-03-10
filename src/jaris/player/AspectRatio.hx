@@ -23,7 +23,7 @@
 package jaris.player;
 
 /**
- * Stores the player used constants
+ * Stores the player used aspect ratio constants
  */
 class AspectRatio 
 {

@@ -27,6 +27,7 @@ import flash.display.Sprite;
 import flash.display.Stage;
 import flash.display.StageDisplayState;
 import flash.events.Event;
+import flash.events.EventDispatcher;
 import flash.events.FullScreenEvent;
 import flash.events.IOErrorEvent;
 import flash.events.KeyboardEvent;
@@ -53,7 +54,7 @@ import jaris.events.PlayerEvents;
 /**
  * Jaris main video player
  */
-class Player 
+class Player extends EventDispatcher
 {
 	//{Member variables
 	private var _stage:Stage;
@@ -80,9 +81,6 @@ class Player
 	private var _videoQualityHigh:Bool;
 	private var _mediaDuration:Float;
 	private var _isPlaying:Bool;
-	private var _eventListeners:Dynamic;
-	private var _eventCount:UInt;
-	private var _playerEvent:PlayerEvents;
 	private var _aspectRatio:Float;
 	private var _originalAspectRatio:Float;
 	private var _mediaEndReached:Bool;
@@ -99,6 +97,8 @@ class Player
 	//{Constructor
 	public function new() 
 	{
+		super();
+		
 		//{Main Variables Init
 		_stage = Lib.current.stage;
 		_movieClip = Lib.current;
@@ -109,9 +109,6 @@ class Player
 		_mediaLoaded = false;
 		_hideMouseTimer = new Timer(1500);
 		_checkAudioTimer = new Timer(100);
-		_eventListeners = new Array();
-		_eventCount = 0;
-		_playerEvent = new PlayerEvents();
 		_seekPoints = new Array();
 		_downloadCompleted = false;
 		_startTime = 0;
@@ -155,6 +152,7 @@ class Player
 		_stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		_stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		_stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
+		_stage.addEventListener(Event.RESIZE, onResize);
 		_hideMouseTimer.addEventListener(TimerEvent.TIMER, hideMouseTimer);
 		_checkAudioTimer.addEventListener(TimerEvent.TIMER, checkAudioTimer);
 		_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
@@ -266,30 +264,30 @@ class Player
 		switch(event.keyCode)
 		{
 			case Keyboard.TAB:
-				_playerEvent.aspectRatio = toggleAspectRatio();
+				toggleAspectRatio();
 				callEvents(PlayerEvents.ASPECT_RATIO);
 			
 			case F_KEY:
 				toggleFullscreen();
 				
 			case M_KEY:
-				_playerEvent.mute = toggleMute();
+				toggleMute();
 				callEvents(PlayerEvents.MUTE);
 				
 			case Keyboard.UP:
-				_playerEvent.volume = volumeUp();
+				volumeUp();
 				callEvents(PlayerEvents.VOLUME_UP);
 				
 			case Keyboard.DOWN:
-				_playerEvent.volume = volumeDown();
+				volumeDown();
 				callEvents(PlayerEvents.VOLUME_DOWN);
 				
 			case Keyboard.RIGHT:
-				_playerEvent.time = forward();
+				forward();
 				callEvents(PlayerEvents.FORWARD);
 				
 			case Keyboard.LEFT:
-				_playerEvent.time = rewind();
+				rewind();
 				callEvents(PlayerEvents.REWIND);
 				
 			case Keyboard.SPACE:
@@ -323,6 +321,15 @@ class Player
 	}
 	
 	/**
+	 * Resize video player
+	 * @param	event
+	 */
+	private function onResize(event:Event):Void
+	{
+		resizeAndCenterPlayer();
+	}
+	
+	/**
 	 * Dispath a full screen event to listeners as redraw player an takes care of some other aspects
 	 * @param	event
 	 */
@@ -350,7 +357,6 @@ class Player
 		
 		resizeAndCenterPlayer();
 		
-		_playerEvent.fullscreen = _fullscreen;
 		callEvents(PlayerEvents.FULLSCREEN);
 	}
 	
@@ -412,12 +418,7 @@ class Player
 			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
 			_originalAspectRatio = _aspectRatio;
 			
-			_playerEvent.duration = _mediaDuration;
-			_playerEvent.width = _videoWidth;
-			_playerEvent.height = _videoHeight;
-			_playerEvent.aspectRatio = _aspectRatio;
-			
-			callEvents(PlayerEvents.META_RECIEVED);
+			callEvents(PlayerEvents.MEDIA_INITIALIZED);
 			
 			resizeAndCenterPlayer();
 		}
@@ -439,10 +440,9 @@ class Player
 	private function onSoundComplete(event:Event)
 	{
 		_mediaDuration = _sound.length / 1000;
-		_playerEvent.duration = _sound.length / 1000;
 		_downloadCompleted = true;
 		
-		callEvents(PlayerEvents.META_RECIEVED);
+		callEvents(PlayerEvents.MEDIA_INITIALIZED);
 	}
 	
 	/**
@@ -455,7 +455,7 @@ class Player
 		{
 			_soundChannel = _sound.play();
 			_checkAudioTimer.start();
-			
+
 			_isPlaying = true;
 			
 			if (_poster != null)
@@ -471,13 +471,8 @@ class Player
 			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
 			_originalAspectRatio = _aspectRatio;
 			
-			_playerEvent.duration = _mediaDuration;
-			_playerEvent.width = _videoWidth;
-			_playerEvent.height = _videoHeight;
-			_playerEvent.aspectRatio = _aspectRatio;
-			
 			callEvents(PlayerEvents.CONNECTION_SUCCESS);
-			callEvents(PlayerEvents.META_RECIEVED);
+			callEvents(PlayerEvents.MEDIA_INITIALIZED);
 			
 			resizeAndCenterPlayer();
 		}
@@ -508,8 +503,7 @@ class Player
 		}
 		
 		_mediaDuration = ((_sound.bytesTotal / _sound.bytesLoaded) * _sound.length) / 1000;
-		_playerEvent.duration = _mediaDuration;
-		callEvents(PlayerEvents.META_RECIEVED);
+		callEvents(PlayerEvents.MEDIA_INITIALIZED);
 	}
 	//}
 	
@@ -521,13 +515,20 @@ class Player
 	 */
 	private function callEvents(type:String):Void
 	{
-		for (index in Reflect.fields(_eventListeners))
-		{
-			if (Reflect.field(_eventListeners, index)[0] == type)
-			{
-				Reflect.field(_eventListeners, index)[1](_playerEvent);
-			}
-		}
+		var playerEvent:PlayerEvents = new PlayerEvents(type, true);
+		
+		playerEvent.aspectRatio = getAspectRatio();
+		playerEvent.duration = getDuration();
+		playerEvent.fullscreen = isFullscreen();
+		playerEvent.mute = getMute();
+		playerEvent.volume = getVolume();
+		playerEvent.width = _video.width;
+		playerEvent.height = _video.height;
+		playerEvent.stream = getNetStream();
+		playerEvent.sound = getSound();
+		playerEvent.time = getCurrentTime();
+		
+		dispatchEvent(playerEvent);
 	}
 	
 	/**
@@ -612,18 +613,6 @@ class Player
 	
 	
 	//{Public methods	
-	/**
-	 * Adds a listener for player event calls
-	 * @param	type a type from PlayerEvents class
-	 * @param	listener a function
-	 */
-	public function addEventListener(type:String, listener:Dynamic):Void
-	{
-		_eventListeners[_eventCount] = [type, listener];
-		
-		_eventCount++;
-	}
-	
 	/**
 	 * Loads a video and starts playing it
 	 * @param	video video url to load
@@ -1337,6 +1326,32 @@ class Player
 	public function getQuality():Bool
 	{
 		return _videoQualityHigh;
+	}
+	
+	/**
+	 * The current playing time
+	 * @return current playing time in seconds
+	 */
+	public function getCurrentTime():Float
+	{
+		var time:Float = 0;
+		if (_type == InputType.VIDEO)
+		{
+			time = _stream.time;
+		}
+		else if (_type == InputType.AUDIO)
+		{
+			if(_soundChannel != null)
+			{	
+				time = _soundChannel.position / 1000;
+			}
+			else
+			{
+				time = 0;
+			}
+		}
+		
+		return time;
 	}
 	//}
 }

@@ -23,7 +23,7 @@
 package jaris.player;
 
 /**
- * Some constants for the stream type
+ * Some constants for the stream types
  */
 class StreamType 
 {

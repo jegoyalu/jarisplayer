@@ -23,7 +23,7 @@
 package jaris.animation;
 
 /**
- * Gives quick access usage to jaris effects
+ * Gives quick access usage to jaris animations
  */
 class Animation
 {

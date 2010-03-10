@@ -22,12 +22,14 @@
 
 package jaris.events;
 
+import flash.events.Event;
+import flash.media.Sound;
 import flash.net.NetStream;
 
 /**
- * Stores constants of the player events
+ * Implements a player events
  */
-class PlayerEvents 
+class PlayerEvents extends Event
 {
 	public static var ASPECT_RATIO = "onAspectRatio";
 	public static var MOUSE_SHOW = "onMouseShow";
@@ -43,24 +45,26 @@ class PlayerEvents
 	public static var NOT_BUFFERING = "onNotBuffering";
 	public static var CONNECTION_FAILED = "onConnectionFailed";
 	public static var CONNECTION_SUCCESS = "onConnectionSuccess";
-	public static var META_RECIEVED = "onMetaDataReceived";
+	public static var MEDIA_INITIALIZED = "onDataInitialized";
 	public static var PLAYBACK_FINISHED = "onPlaybackFinished";
 	public static var STOP_CLOSE = "onStopAndClose";
 	public static var RESIZE = "onResize";
 	
 	public var aspectRatio:Float;
+	public var duration:Float;
 	public var fullscreen:Bool;
 	public var mute:Bool;
 	public var volume:Float;
-	public var duration:Float;
 	public var width:Float;
 	public var height:Float;
 	public var stream:NetStream;
-	public var time:Float;
+	public var sound:Sound;
+	public var time:Float;	
 	
-	
-	public function new() 
+	public function new(type:String, bubbles:Bool=false, cancelable:Bool=false) 
 	{
+		super(type, bubbles, cancelable);
+		
 		fullscreen = false;
 		mute = false;
 		volume = 1.0;
@@ -69,5 +73,4 @@ class PlayerEvents
 		height = 0;
 		time = 0;
 	}
-	
 }
