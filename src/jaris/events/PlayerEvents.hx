@@ -23,6 +23,7 @@
 package jaris.events;
 
 import flash.events.Event;
+import flash.media.ID3Info;
 import flash.media.Sound;
 import flash.net.NetStream;
 
@@ -60,6 +61,7 @@ class PlayerEvents extends Event
 	public var stream:NetStream;
 	public var sound:Sound;
 	public var time:Float;	
+	public var id3Info:ID3Info;
 	
 	public function new(type:String, bubbles:Bool=false, cancelable:Bool=false) 
 	{

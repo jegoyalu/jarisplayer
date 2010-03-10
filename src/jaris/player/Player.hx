@@ -37,6 +37,7 @@ import flash.events.ProgressEvent;
 import flash.events.TimerEvent;
 import flash.geom.Rectangle;
 import flash.Lib;
+import flash.media.ID3Info;
 import flash.media.Sound;
 import flash.media.SoundChannel;
 import flash.media.SoundTransform;
@@ -74,6 +75,7 @@ class Player extends EventDispatcher
 	private var _server:String; //For future use on rtmp
 	private var _sound:Sound;
 	private var _soundChannel:SoundChannel;
+	private var _id3Info:ID3Info;
 	private var _video:Video;
 	private var _videoWidth:Float;
 	private var _videoHeight:Float;
@@ -470,6 +472,7 @@ class Player extends EventDispatcher
 			_mediaDuration = ((_sound.bytesTotal / _sound.bytesLoaded) * _sound.length) / 1000;
 			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
 			_originalAspectRatio = _aspectRatio;
+			_id3Info = _sound.id3;
 			
 			callEvents(PlayerEvents.CONNECTION_SUCCESS);
 			callEvents(PlayerEvents.MEDIA_INITIALIZED);
@@ -527,6 +530,7 @@ class Player extends EventDispatcher
 		playerEvent.stream = getNetStream();
 		playerEvent.sound = getSound();
 		playerEvent.time = getCurrentTime();
+		playerEvent.id3Info = getId3Info();
 		
 		dispatchEvent(playerEvent);
 	}
@@ -1259,6 +1263,15 @@ class Player extends EventDispatcher
 	public function getSound():Sound
 	{
 		return _sound;
+	}
+	
+	/**
+	 * The id3 info of sound object
+	 * @return
+	 */
+	public function getId3Info():ID3Info
+	{
+		return _id3Info;
 	}
 	
 	/**
