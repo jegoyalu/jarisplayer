@@ -796,6 +796,10 @@ class Controls extends MovieClip {
 		redrawControls();
 	}
 	
+	/**
+	 * To set the duration label when autostart parameter is false
+	 * @param	duration seconds or formatted string in format hh:mm:ss
+	 */
 	public function setDurationLabel(duration:String):Void
 	{
 		//Person passed time already formatted
