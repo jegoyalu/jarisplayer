@@ -580,19 +580,16 @@ class Controls extends MovieClip {
 	 */
 	private function redrawControls():Void
 	{	
-		_seekBar.graphics.clear();
-		_trackBar.graphics.clear();
-		_track.graphics.clear();
-		_thumb.graphics.clear();
-		
-		drawSeekControls();
-		drawPlayingControls();
-		
+		var count:UInt = 1;
 		//draw until seekbar width == stage width
-		if(_seekBar.width != _stage.stageWidth)
+		if(_seekBar.width != _stage.stageWidth && count <= 3)
 		{
-			redrawControls();
+			drawSeekControls();
+			
+			count++;
 		}
+		
+		drawPlayingControls();
 	}
 	
 	/**
@@ -623,6 +620,12 @@ class Controls extends MovieClip {
 	 */
 	private function drawSeekControls()
 	{
+		//Reset sprites for redraw
+		_seekBar.graphics.clear();
+		_trackBar.graphics.clear();
+		_track.graphics.clear();
+		_thumb.graphics.clear();
+		
 		_seekBar.x = 0;
 		_seekBar.y = _stage.stageHeight - 25;
 		_seekBar.graphics.lineStyle();
