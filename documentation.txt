@@ -125,3 +125,6 @@ Here is the list of keyboard shortcuts to control Jaris Player.
     
 	* F
       Swtich to fullscreen mode.
+	
+	* X
+      Stops and close current stream
