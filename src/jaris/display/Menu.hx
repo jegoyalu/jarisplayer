@@ -49,10 +49,13 @@ class Menu
 	private var _volumeDownMenuItem:ContextMenuItem;
 	private var _qualityContextMenu:ContextMenuItem;
 	
+	private var _currentAspectRatio:String;
+	
 	public function new(player:Player) 
 	{
 		_movieClip = Lib.current;
 		_player = player;
+		_currentAspectRatio = "original";
 		
 		//Initialize context menu replacement
 		_contextMenu = new ContextMenu();
@@ -132,34 +135,43 @@ class Menu
 			_muteMenuItem.caption = _player.isFullscreen()?"Mute":"Mute (M)";
 		}
 		
-		switch(_player.getAspectRatio())
+		switch(_currentAspectRatio)
 		{
-			case _player.getOriginalAspectRatio():
+			case "original":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (1:1) (TAB)";
+				_currentAspectRatio = "1:1";
 				
-			case AspectRatio._1_1:
-				_aspectRatioMenuItem.caption ="Aspect Ratio (3:2) (TAB)";
+			case "1:1":
+				_aspectRatioMenuItem.caption = "Aspect Ratio (3:2) (TAB)";
+				_currentAspectRatio = "3:2";
 				
-			case AspectRatio._3_2:
+			case "3:2":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (4:3) (TAB)";
+				_currentAspectRatio = "4:3";
 				
-			case AspectRatio._4_3:
+			case "4:3":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (5:4) (TAB)";
+				_currentAspectRatio = "5:4";
 				
-			case AspectRatio._5_4:
+			case "5:4":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (14:9) (TAB)";
+				_currentAspectRatio = "14:9";
 				
-			case AspectRatio._14_9:
+			case "14:9":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (14:10) (TAB)";
+				_currentAspectRatio = "14:10";
 				
-			case AspectRatio._14_10:
+			case "14:10":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (16:9) (TAB)";
+				_currentAspectRatio = "16:9";
 				
-			case AspectRatio._16_9:
+			case "16:9":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (16:10) (TAB)";
+				_currentAspectRatio = "16:10";
 				
-			case AspectRatio._16_10:
+			case "16:10":
 				_aspectRatioMenuItem.caption = "Aspect Ratio (original) (TAB)";
+				_currentAspectRatio = "original";
 		}
 		
 		if (_player.getQuality())

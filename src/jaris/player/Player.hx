@@ -88,6 +88,7 @@ class Player extends EventDispatcher
 	private var _mediaDuration:Float;
 	private var _isPlaying:Bool;
 	private var _aspectRatio:Float;
+	private var _currentAspectRatio:String;
 	private var _originalAspectRatio:Float;
 	private var _mediaEndReached:Bool;
 	private var _seekPoints:Array<Float>;
@@ -126,6 +127,7 @@ class Player extends EventDispatcher
 		_streamType = StreamType.FILE;
 		_type = InputType.VIDEO;
 		_server = "";
+		_currentAspectRatio = "original";
 		//}
 		
 		//{Initialize sound object
@@ -1019,37 +1021,47 @@ class Player extends EventDispatcher
 	 */
 	public function toggleAspectRatio():Float
 	{
-		switch(_aspectRatio)
+		switch(_currentAspectRatio)
 		{
-			case _originalAspectRatio:
+			case "original":
 				_aspectRatio = AspectRatio._1_1;
+				_currentAspectRatio = "1:1";
 				
-			case AspectRatio._1_1:
+			case "1:1":
 				_aspectRatio = AspectRatio._3_2;
+				_currentAspectRatio = "3:2";
 				
-			case AspectRatio._3_2:
+			case "3:2":
 				_aspectRatio = AspectRatio._4_3;
+				_currentAspectRatio = "4:3";
 				
-			case AspectRatio._4_3:
+			case "4:3":
 				_aspectRatio = AspectRatio._5_4;
+				_currentAspectRatio = "5:4";
 				
-			case AspectRatio._5_4:
+			case "5:4":
 				_aspectRatio = AspectRatio._14_9;
+				_currentAspectRatio = "14:9";
 				
-			case AspectRatio._14_9:
+			case "14:9":
 				_aspectRatio = AspectRatio._14_10;
+				_currentAspectRatio = "14:10";
 				
-			case AspectRatio._14_10:
+			case "14:10":
 				_aspectRatio = AspectRatio._16_9;
+				_currentAspectRatio = "16:9";
 				
-			case AspectRatio._16_9:
+			case "16:9":
 				_aspectRatio = AspectRatio._16_10;
+				_currentAspectRatio = "16:10";
 				
-			case AspectRatio._16_10:
+			case "16:10":
 				_aspectRatio = _originalAspectRatio;
+				_currentAspectRatio = "original";
 			
 			default:
 				_aspectRatio = _originalAspectRatio;
+				_currentAspectRatio = "original";
 		}
 		
 		resizeAndCenterPlayer();

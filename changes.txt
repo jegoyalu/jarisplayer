@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.4 beta - 03/11/2010
+﻿Jaris FLV Player v2.0.5 beta - 03/11/2010
+
+	* Improved aspect ratio toogle when video aspect ratio is already on the aspect ratios list
+
+Jaris FLV Player v2.0.4 beta - 03/11/2010
 
 	* Fixed a drawing issue where seek bar after fullscreen stayed long
 	* Documented other parts of the code
