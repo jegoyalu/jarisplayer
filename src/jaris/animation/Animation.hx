@@ -30,10 +30,10 @@ class Animation
 
 	/**
 	 * Quick access to fade in effect
-	 * @param	object
-	 * @param	seconds
+	 * @param	object the object to animate
+	 * @param	seconds the duration of the animation
 	 */
-	public static function fadeIn(object:Dynamic, seconds:Float)
+	public static function fadeIn(object:Dynamic, seconds:Float):Void
 	{
 		var animation:AnimationsBase = new AnimationsBase();
 		animation.fadeIn(object, seconds);
@@ -41,10 +41,10 @@ class Animation
 	
 	/**
 	 * Quick access to fade out effect
-	 * @param	object
-	 * @param	seconds
+	 * @param	object the object to animate
+	 * @param	seconds the duration of the animation
 	 */
-	public static function fadeOut(object:Dynamic, seconds:Float)
+	public static function fadeOut(object:Dynamic, seconds:Float):Void
 	{
 		var animation:AnimationsBase = new AnimationsBase();
 		animation.fadeOut(object, seconds);
@@ -52,11 +52,11 @@ class Animation
 	
 	/**
 	 * Quick access to slide in effect
-	 * @param	object
-	 * @param	position
-	 * @param	seconds
+	 * @param	object the object to animate
+	 * @param	position could be top, left, bottom or right
+	 * @param	seconds the duration of the animation
 	 */
-	public static function slideIn(object:Dynamic, position:String, seconds:Float)
+	public static function slideIn(object:Dynamic, position:String, seconds:Float):Void
 	{
 		var animation:AnimationsBase = new AnimationsBase();
 		animation.slideIn(object, position, seconds);
@@ -64,11 +64,11 @@ class Animation
 	
 	/**
 	 * Quick access to slide out effect
-	 * @param	object
-	 * @param	position
-	 * @param	seconds
+	 * @param	object the object to animate
+	 * @param	position could be top, left, bottom or right
+	 * @param	seconds the duration of the animation
 	 */
-	public static function slideOut(object:Dynamic, position:String, seconds:Float)
+	public static function slideOut(object:Dynamic, position:String, seconds:Float):Void
 	{
 		var animation:AnimationsBase = new AnimationsBase();
 		animation.slideOut(object, position, seconds);

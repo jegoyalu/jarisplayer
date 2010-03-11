@@ -29,7 +29,7 @@ import flash.events.Event;
 import flash.Lib;
 
 /**
- * Control to draw a loading bar
+ * Draws a loading bar
  */
 class Loader extends Sprite 
 {
