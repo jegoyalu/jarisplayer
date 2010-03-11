@@ -122,6 +122,11 @@ class Utils
 		return timeString;
 	}
 	
+	/**
+	 * Converts a given rtmp source to a valid format for NetStream
+	 * @param	source
+	 * @return
+	 */
 	public static function rtmpSourceParser(source:String):String
 	{
 		if (source.indexOf(".flv") != -1)
@@ -144,6 +149,11 @@ class Utils
 		return source;
 	}
 	
+	/**
+	 * Changes a youtube url to the format youtube.com/v/video_id
+	 * @param	source
+	 * @return
+	 */
 	public static function youtubeSourceParse(source:String):String
 	{
 		return source.split("watch?v=").join("v/");
