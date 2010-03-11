@@ -121,4 +121,31 @@ class Utils
 		
 		return timeString;
 	}
+	
+	public static function rtmpSourceParser(source:String):String
+	{
+		if (source.indexOf(".flv") != -1)
+		{
+			return source.split(".flv").join("");
+		}
+		else if (source.indexOf(".mp3") != -1)
+		{
+			return "mp3:" + source.split(".mp3").join("");
+		}
+		else if (source.indexOf(".mp4") != -1)
+		{
+			return "mp4:" + source;
+		}
+		else if (source.indexOf(".f4v") != -1)
+		{
+			return "mp4:" + source;
+		}
+		
+		return source;
+	}
+	
+	public static function youtubeSourceParse(source:String):String
+	{
+		return source.split("watch?v=").join("v/");
+	}
 }

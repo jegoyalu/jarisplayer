@@ -58,7 +58,6 @@ class Controls extends MovieClip {
 	private var _thumb:Sprite;
 	private var _track:Sprite;
 	private var _trackDownloaded:Sprite;
-	private var _trackBar:Sprite;
 	private var _scrubbing:Bool;
 	private var _stage:Stage;
 	private var _movieClip:MovieClip;
@@ -108,10 +107,6 @@ class Controls extends MovieClip {
 		_seekBar = new Sprite();
 		addChild(_seekBar);
 		
-		_trackBar = new Sprite(  );
-		_trackBar.tabEnabled = false;
-		_seekBar.addChild(_trackBar);
-		
 		_trackDownloaded = new Sprite(  );
 		_trackDownloaded.tabEnabled = false;
 		_seekBar.addChild(_trackDownloaded);
@@ -147,8 +142,6 @@ class Controls extends MovieClip {
 		_seekPlayTimeLabel.text = "00:00:00";
 		_seekPlayTimeLabel.tabEnabled = false;
 		addChild(_seekPlayTimeLabel);
-		
-		drawSeekControls();
 		//}
 		
 		//{Playing controls initialization
@@ -182,6 +175,8 @@ class Controls extends MovieClip {
 		_controlsBar.addChild(_volumeTrack); 
 		//}
 		
+		redrawControls();
+		
 		//{Loader bar
 		_loader = new Loader();
 		_loader.hide();
@@ -206,7 +201,6 @@ class Controls extends MovieClip {
 		_track.addEventListener(MouseEvent.CLICK, onTrackClick);
 		_track.addEventListener(MouseEvent.MOUSE_MOVE, onTrackMouseMove);
 		_track.addEventListener(MouseEvent.MOUSE_OUT, onTrackMouseOut);
-		_trackBar.addEventListener(MouseEvent.MOUSE_OUT, onThumbMouseUp);
 		_playControl.addEventListener(MouseEvent.CLICK, onPlayClick);
 		_pauseControl.addEventListener(MouseEvent.CLICK, onPauseClick);
 		_aspectRatioControl.addEventListener(MouseEvent.CLICK, onAspectRatioClick);
@@ -275,12 +269,14 @@ class Controls extends MovieClip {
 	private function onEnterFrame(event:Event)
 	{
 		if(_player.getDuration() > 0) {
-			if(_scrubbing) {
-				_player.seek(_player.getDuration() * (_thumb.x / _track.width));
+			if (_scrubbing) 
+			{
+				_player.seek(((_thumb.x - _track.x) / _track.width) * _player.getDuration());
 			}
-			else {
-				_currentPlayTimeLabel.text = Utils.formatTime(_player.getTime());
-				_thumb.x = (_player.getTime()+_player.getStartTime()) / _player.getDuration() * (_track.width-_thumb.width);
+			else 
+			{
+				_currentPlayTimeLabel.text = Utils.formatTime(_player.getCurrentTime());
+				_thumb.x = _player.getCurrentTime() / _player.getDuration() * (_track.width-_thumb.width) + _track.x;
 			}
 		}
 		
@@ -434,10 +430,13 @@ class Controls extends MovieClip {
 	{
 		if (!_player.isFullscreen())
 		{
-			_player.getVideo().height = _stage.stageHeight - _trackBar.height;
-			_player.getVideo().width = _player.getVideo().height * _player.getAspectRatio();
-			
-			_player.getVideo().x = (_stage.stageWidth / 2) - (_player.getVideo().width / 2);
+			if (_player.getVideo().y + _player.getVideo().height >= _stage.stageHeight)
+			{
+				_player.getVideo().height = _stage.stageHeight - _seekBar.height;
+				_player.getVideo().width = _player.getVideo().height * _player.getAspectRatio();
+				
+				_player.getVideo().x = (_stage.stageWidth / 2) - (_player.getVideo().width / 2);
+			}
 		}
 		
 		redrawControls();
@@ -490,7 +489,7 @@ class Controls extends MovieClip {
 	 */
 	private function onTrackClick(event:MouseEvent)
 	{
-		var clickPosition:Float = _track.mouseX - _currentPlayTimeLabel.width;
+		var clickPosition:Float = _track.mouseX;
 		_player.seek(_player.getDuration() * (clickPosition / _track.width));
 	}
 	
@@ -500,10 +499,10 @@ class Controls extends MovieClip {
 	 */
 	private function onTrackMouseMove(event:MouseEvent):Void
 	{
-		var clickPosition:Float = _track.mouseX - _currentPlayTimeLabel.width;
+		var clickPosition:Float = _track.mouseX;
 		_seekPlayTimeLabel.text = Utils.formatTime(_player.getDuration() * (clickPosition / _track.width));
 		
-		_seekPlayTimeLabel.y = _stage.stageHeight - _trackBar.height - _seekPlayTimeLabel.height - 1;
+		_seekPlayTimeLabel.y = _stage.stageHeight - _seekBar.height - _seekPlayTimeLabel.height - 1;
 		_seekPlayTimeLabel.x = clickPosition + (_seekPlayTimeLabel.width / 2);
 		
 		_seekPlayTimeLabel.backgroundColor = _brightColor;
@@ -546,7 +545,7 @@ class Controls extends MovieClip {
 	{
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_hoverColor);
-		_thumb.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height/2)-(10/2), 10, 10);
+		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -558,7 +557,7 @@ class Controls extends MovieClip {
 	{
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_controlColor);
-		_thumb.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height/2)-(10/2), 10, 10);
+		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -608,12 +607,13 @@ class Controls extends MovieClip {
 		}
 		
 		var position:Float = _player.getStartTime() / _player.getDuration();
+		var startPosition:Float = (position * _track.width) + _track.x;
 		
 		_trackDownloaded.graphics.clear();
-		
 		_trackDownloaded.graphics.lineStyle();
+		_trackDownloaded.x = startPosition;
 		_trackDownloaded.graphics.beginFill(_brightColor, 0xFFFFFF);
-		_trackDownloaded.graphics.drawRect(_currentPlayTimeLabel.width + (position * _track.width), (_seekBar.height / 2) - (10 / 2), _track.width * _percentLoaded, 10);
+		_trackDownloaded.graphics.drawRect(0, (_seekBar.height / 2) - (10 / 2), ((_track.width + _track.x) - _trackDownloaded.x) * _percentLoaded, 10);
 		_trackDownloaded.graphics.endFill();
 	}
 	
@@ -624,53 +624,48 @@ class Controls extends MovieClip {
 	{
 		//Reset sprites for redraw
 		_seekBar.graphics.clear();
-		_trackBar.graphics.clear();
 		_track.graphics.clear();
 		_thumb.graphics.clear();
 		
 		//Draw seek bar
+		var _seekBarWidth:Float = _stage.stageWidth;
+		var _seekBarHeight:Float = 25;
 		_seekBar.x = 0;
 		_seekBar.y = _stage.stageHeight - 25;
-		_seekBar.graphics.lineStyle();
-		_seekBar.graphics.beginFill(0x000000, 0);
-		_seekBar.graphics.drawRect(0, 0, _stage.stageWidth, 25);
-		_seekBar.graphics.endFill();
-		_seekBar.width = _stage.stageWidth;	
-		_seekBar.height = 25;
-		
-		//Draw trackbar
 		var matrix:Matrix = new Matrix(  );
-		matrix.createGradientBox(_seekBar.width, 25, Utils.degreesToRadians(90), 0, _seekBar.height-25);
+		matrix.createGradientBox(_seekBar.width, _seekBar.height, Utils.degreesToRadians(90), 0, 0);
 		var colors:Array<UInt> = [_brightColor, _darkColor];
 		var alphas:Array<UInt> = [1, 1];
 		var ratios:Array<UInt> = [0, 255];
-		_trackBar.graphics.lineStyle();
-		_trackBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
-		_trackBar.graphics.drawRect(0, 0, _seekBar.width, _seekBar.height);
-		_trackBar.graphics.endFill(  );
+		_seekBar.graphics.lineStyle();
+		_seekBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		_seekBar.graphics.drawRect(0, 0, _stage.stageWidth, 25);
+		_seekBar.graphics.endFill();
 		
 		//Draw current play time label
 		_currentPlayTimeLabel.textColor = _controlColor;
-		_currentPlayTimeLabel.y = _seekBar.height - (_trackBar.height/2)-(_currentPlayTimeLabel.height/2);
+		_currentPlayTimeLabel.y = _seekBar.height - (_seekBar.height/2)-(_currentPlayTimeLabel.height/2);
 		
 		//Draw total play time label
 		_totalPlayTimeLabel.textColor = _controlColor;
 		_totalPlayTimeLabel.x = _seekBar.width - _totalPlayTimeLabel.width;
-		_totalPlayTimeLabel.y = _seekBar.height - (_trackBar.height / 2) - (_totalPlayTimeLabel.height / 2);
+		_totalPlayTimeLabel.y = _seekBar.height - (_seekBar.height / 2) - (_totalPlayTimeLabel.height / 2);
 		
 		//Draw download progress
 		drawDownloadProgress();
 		
 		//Draw track place holder for drag
+		_track.x = _currentPlayTimeLabel.width;
 		_track.graphics.lineStyle(1, _controlColor);
 		_track.graphics.beginFill(_darkColor, 0);
-		_track.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height / 2) - (10 / 2), _seekBar.width - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
+		_track.graphics.drawRect(0, (_seekBar.height / 2) - (10 / 2), _seekBar.width - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
 		_track.graphics.endFill();
 		
 		//Draw thumb
+		_thumb.x = _currentPlayTimeLabel.width;
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_controlColor);
-		_thumb.graphics.drawRect(_currentPlayTimeLabel.width, (_seekBar.height/2)-(10/2), 10, 10);
+		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -807,7 +802,7 @@ class Controls extends MovieClip {
 	
 	/**
 	 * To set the duration label when autostart parameter is false
-	 * @param	duration seconds or formatted string in format hh:mm:ss
+	 * @param	duration in seconds or formatted string in format hh:mm:ss
 	 */
 	public function setDurationLabel(duration:String):Void
 	{

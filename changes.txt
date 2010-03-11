@@ -1,4 +1,12 @@
-﻿Jaris FLV Player v2.0.2 beta - 03/09/2010
+﻿Jaris FLV Player v2.0.3 beta - 03/10/2010
+
+	* Support for rtmp streaming
+	* support for youtube
+	* better support for http streaming like lighttpd
+	* Fixed calculation of width on original aspect ratio larger than stage
+	* And many hours of improvements
+
+Jaris FLV Player v2.0.2 beta - 03/09/2010
 
 	* Implement EventDispatcher on Player class instead of using custom event mechanism
 	* Fixed not getting initial stage widht and height on IE when using swfobjects

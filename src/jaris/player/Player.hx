@@ -22,10 +22,12 @@
 
 package jaris.player;
 
+import flash.display.Loader;
 import flash.display.MovieClip;
 import flash.display.Sprite;
 import flash.display.Stage;
 import flash.display.StageDisplayState;
+import flash.events.AsyncErrorEvent;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.FullScreenEvent;
@@ -46,11 +48,13 @@ import flash.net.NetConnection;
 import flash.net.NetStream;
 import flash.net.URLRequest;
 import flash.system.Capabilities;
+import flash.system.Security;
 import flash.ui.Keyboard;
 import flash.ui.Mouse;
 import flash.utils.Timer;
 import jaris.display.Poster;
 import jaris.events.PlayerEvents;
+import jaris.utils.Utils;
 
 /**
  * Jaris main video player
@@ -93,6 +97,7 @@ class Player extends EventDispatcher
 	private var _stopped:Bool;
 	private var _useHardWareScaling:Bool;
 	private var _poster:Poster;
+	private var _youtubeLoader:Loader;
 	//}
 	
 	
@@ -132,13 +137,13 @@ class Player extends EventDispatcher
 
 		//}
 		
-		//{Initialize video and connection objets
+		//{Initialize video and connection objects
 		_connection = new NetConnection();
+		_connection.client = this;
 		_connection.connect(null);
 		_stream = new NetStream(_connection);
 		
 		_video = new Video(_stage.stageWidth, _stage.stageHeight);
-		_video.attachNetStream(_stream);
 		
 		_movieClip.addChild(_video);
 		//}
@@ -157,7 +162,8 @@ class Player extends EventDispatcher
 		_stage.addEventListener(Event.RESIZE, onResize);
 		_hideMouseTimer.addEventListener(TimerEvent.TIMER, hideMouseTimer);
 		_checkAudioTimer.addEventListener(TimerEvent.TIMER, checkAudioTimer);
-		_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+		_connection.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+		_connection.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
 		//}
 	}
 	//}
@@ -205,6 +211,24 @@ class Player extends EventDispatcher
 	
 	//{Events
 	/**
+	 * Callback after bandwidth calculation for rtmp streams
+	 */
+	private function onBWDone():Void
+	{
+		//Need to study this more
+	}
+	
+	/**
+	 * Triggers error event on rtmp connections
+	 * @param	event
+	 */
+	private function onAsyncError(event:AsyncErrorEvent):Void
+	{
+		//TODO: Should trigger event for controls to display error message
+		trace(event.error);
+	}
+	
+	/**
 	 * Checks if connection failed or succeed
 	 * @param	event
 	 */
@@ -213,28 +237,46 @@ class Player extends EventDispatcher
 		switch (event.info.code)
 		{
 			case "NetConnection.Connect.Success":
+				if (_streamType == StreamType.RTMP)
+				{
+					_stream = new NetStream(_connection);
+					_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+					_stream.bufferTime = 10;
+					_stream.play(Utils.rtmpSourceParser(_mediaSource), true);
+					_stream.client = this;
+					_video.attachNetStream(_stream);
+				}
 				callEvents(PlayerEvents.CONNECTION_SUCCESS);
 
 			case "NetStream.Play.StreamNotFound":
-				trace("Stream not found: " + _mediaSource);
+				trace("Stream not found: " + _mediaSource); //Replace with a dispatch for error event
 				callEvents(PlayerEvents.CONNECTION_FAILED);
 				
 			case "NetStream.Play.Stop":
-				if (_isPlaying) { _stream.togglePause(); }
-				_isPlaying = false;
-				_mediaEndReached = true;
-				callEvents(PlayerEvents.PLAYBACK_FINISHED);
+				if (_streamType != StreamType.RTMP)
+				{
+					if (_isPlaying) { _stream.togglePause(); }
+					_isPlaying = false;
+					_mediaEndReached = true;
+					callEvents(PlayerEvents.PLAYBACK_FINISHED);
+				}
 				
 			case "NetStream.Play.Start":
 				_isPlaying = true;
 				_mediaEndReached = false;
-				if (_stream.bytesLoaded != _stream.bytesTotal)
+				if (_stream.bytesLoaded != _stream.bytesTotal || _streamType == StreamType.RTMP)
 				{
 					callEvents(PlayerEvents.BUFFERING);
 				}
 				
 			case "NetStream.Seek.Notify":
 				_mediaEndReached = false;
+				if (_streamType == StreamType.RTMP)
+				{
+					_isPlaying = true;
+					callEvents(PlayerEvents.PLAY_PAUSE);
+					callEvents(PlayerEvents.BUFFERING);
+				}
 				
 			case "NetStream.Buffer.Empty":
 				if (_stream.bytesLoaded != _stream.bytesTotal)
@@ -432,7 +474,17 @@ class Player extends EventDispatcher
 	 */
 	private function onLastSecond(data:Dynamic):Void
 	{
-		//To work on it?
+		trace("last second pseudostream");
+	}
+	
+	/**
+	 * Triggers when playbacks end on rtmp streaming server
+	 */
+	private function onPlayStatus(info:Dynamic):Void
+	{
+		_isPlaying = false;
+		_mediaEndReached = true;
+		callEvents(PlayerEvents.PLAYBACK_FINISHED);
 	}
 	
 	/**
@@ -508,6 +560,120 @@ class Player extends EventDispatcher
 		_mediaDuration = ((_sound.bytesTotal / _sound.bytesLoaded) * _sound.length) / 1000;
 		callEvents(PlayerEvents.MEDIA_INITIALIZED);
 	}
+	
+	/**
+	 * Initializes the youtube loader object
+	 * @param	event
+	 */
+	private function onYouTubeLoaderInit(event:Event):Void
+	{
+		_youtubeLoader.content.addEventListener("onReady", onYoutubeReady);
+		_youtubeLoader.content.addEventListener("onError", onYoutubeError);
+		_youtubeLoader.content.addEventListener("onStateChange", onYoutubeStateChange);
+		_youtubeLoader.content.addEventListener("onPlaybackQualityChange", onYoutubePlaybackQualityChange);
+
+	}
+	
+	/**
+	 * This event is fired when the player is loaded and initialized, meaning it is ready to receive API calls.
+	 */
+	private function onYoutubeReady(event:Event):Void
+	{
+		_movieClip.addChild(_youtubeLoader.content);
+		_movieClip.setChildIndex(_youtubeLoader.content, 0);
+		Reflect.field(_youtubeLoader.content, "setSize")(_stage.stageWidth, _stage.stageHeight);
+		Reflect.field(_youtubeLoader.content, "loadVideoByUrl")(Utils.youtubeSourceParse(_mediaSource));
+		callEvents(PlayerEvents.BUFFERING);
+	}
+
+	/**
+	 * This event is fired whenever the player's state changes. Possible values are unstarted (-1), ended (0), 
+	 * playing (1), paused (2), buffering (3), video cued (5). When the SWF is first loaded it will broadcast 
+	 * an unstarted (-1) event. When the video is cued and ready to play it will broadcast a video cued event (5).
+	 * @param	event
+	 */
+	private function onYoutubeStateChange(event:Event):Void
+	{
+		var status:UInt = Std.parseInt(Reflect.field(event, "data"));
+		
+		switch(status)
+		{
+			case -1:
+				callEvents(PlayerEvents.BUFFERING);
+			
+			case 0:
+				_isPlaying = false;
+				_mediaEndReached = true;
+				callEvents(PlayerEvents.PLAYBACK_FINISHED);
+				
+			case 1:
+				if (_firstLoad)
+				{
+					_isPlaying = true;
+					
+					_videoWidth = _stage.stageWidth;
+					_videoHeight = _stage.stageHeight;
+				
+					_firstLoad = false;
+					
+					if (_poster != null)
+					{
+						_poster.visible = false;
+					}
+					
+					_mediaLoaded = true;
+					_mediaDuration = Reflect.field(_youtubeLoader.content, "getDuration")();
+					trace(_mediaDuration);
+					_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
+					_originalAspectRatio = _aspectRatio;
+					
+					callEvents(PlayerEvents.CONNECTION_SUCCESS);
+					callEvents(PlayerEvents.MEDIA_INITIALIZED);
+					
+					resizeAndCenterPlayer();
+				}
+				callEvents(PlayerEvents.NOT_BUFFERING);
+				
+			case 2:
+				callEvents(PlayerEvents.NOT_BUFFERING);
+				
+			case 3:
+				callEvents(PlayerEvents.BUFFERING);
+				
+			case 5:
+				callEvents(PlayerEvents.NOT_BUFFERING);
+		}
+	}
+    
+	/**
+	 * This event is fired whenever the video playback quality changes. For example, if you call the 
+	 * setPlaybackQuality(suggestedQuality) function, this event will fire if the playback quality actually 
+	 * changes. Your code should respond to the event and should not assume that the quality will automatically 
+	 * change when the setPlaybackQuality(suggestedQuality) function is called. Similarly, your code should not 
+	 * assume that playback quality will only change as a result of an explicit call to setPlaybackQuality or any 
+	 * other function that allows you to set a suggested playback quality.
+	 * 
+	 * The value that the event broadcasts is the new playback quality. Possible values are "small", "medium", 
+	 * "large" and "hd720".
+	 * @param	event
+	 */
+	private function onYoutubePlaybackQualityChange(event:Event):Void
+	{
+		trace(Reflect.field(event, "data"));
+	}
+   
+	/**
+	 * This event is fired when an error in the player occurs. The possible error codes are 100, 101, 
+	 * and 150. The 100 error code is broadcast when the video requested is not found. This occurs when 
+	 * a video has been removed (for any reason), or it has been marked as private. The 101 error code is 
+	 * broadcast when the video requested does not allow playback in the embedded players. The error code 
+	 * 150 is the same as 101, it's just 101 in disguise!
+	 * @param	event
+	 */
+	private function onYoutubeError(event:Event):Void
+	{
+		trace(Reflect.field(event, "data"));
+	}
 	//}
 	
 	
@@ -540,16 +706,39 @@ class Player extends EventDispatcher
 	 */
 	private function resizeAndCenterPlayer():Void
 	{
-		_video.height = _stage.stageHeight;
-		_video.width = _video.height * _aspectRatio;
-		
-		_video.x = (_stage.stageWidth / 2) - (_video.width / 2);
-		
-		_videoMask.graphics.clear();
-		_videoMask.graphics.lineStyle();
-		_videoMask.graphics.beginFill(0x000000, 0);
-		_videoMask.graphics.drawRect(_video.x, _video.y, _video.width, _video.height);
-		_videoMask.graphics.endFill();
+		if (_streamType != StreamType.YOUTUBE)
+		{
+			_video.height = _stage.stageHeight;
+			_video.width = _video.height * _aspectRatio;
+			
+			_video.x = (_stage.stageWidth / 2) - (_video.width / 2);
+			_video.y = 0;
+			
+			if (_video.width > _stage.stageWidth && _aspectRatio == _originalAspectRatio)
+			{
+				var aspectRatio:Float = _videoHeight / _videoWidth;
+				_video.width = _stage.stageWidth;
+				_video.height = aspectRatio * _video.width;
+				_video.x = 0;
+				_video.y = (_stage.stageHeight / 2) - (_video.height / 2);
+			}
+			
+			_videoMask.graphics.clear();
+			_videoMask.graphics.lineStyle();
+			_videoMask.graphics.beginFill(0x000000, 0);
+			_videoMask.graphics.drawRect(_video.x, _video.y, _video.width, _video.height);
+			_videoMask.graphics.endFill();
+		}
+		else
+		{
+			Reflect.field(_youtubeLoader.content, "setSize")(_stage.stageWidth, _stage.stageHeight);
+			
+			_videoMask.graphics.clear();
+			_videoMask.graphics.lineStyle();
+			_videoMask.graphics.beginFill(0x000000, 0);
+			_videoMask.graphics.drawRect(0, 0, _stage.stageWidth, _stage.stageHeight);
+			_videoMask.graphics.endFill();
+		}
 		
 		callEvents(PlayerEvents.RESIZE);
 	}
@@ -623,6 +812,8 @@ class Player extends EventDispatcher
 	 */
 	public function load(source:String, type:String="video", streamType:String="file", server:String=""):Void
 	{
+		stopAndClose();
+		
 		_type = type;
 		_streamType = streamType;
 		_mediaSource = source;
@@ -636,11 +827,30 @@ class Player extends EventDispatcher
 		
 		callEvents(PlayerEvents.BUFFERING);
 		
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			Security.allowDomain("www.youtube.com");
+			_youtubeLoader = new Loader();
+			_youtubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
+			_youtubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
+		}
+		else if (_type == InputType.VIDEO && (_streamType == StreamType.FILE || _streamType == StreamType.PSEUDOSTREAM))
 		{	
+			_connection.connect(null);
+			_stream = new NetStream(_connection);
+			_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
 			_stream.bufferTime = 10;
 			_stream.play(source);
 			_stream.client = this;
+			_video.attachNetStream(_stream);
+		}
+		else if (_type == InputType.VIDEO && _streamType == StreamType.RTMP)
+		{
+			_connection.connect(_server);
+		}
+		else if (_type == InputType.AUDIO && _streamType == StreamType.RTMP)
+		{
+			_connection.connect(_server);
 		}
 		else if(_type == InputType.AUDIO && _streamType == StreamType.FILE)
 		{
@@ -653,20 +863,27 @@ class Player extends EventDispatcher
 	 */
 	public function stopAndClose():Void
 	{
-		_mediaLoaded = false;
-		_isPlaying = false;
-		_stopped = true;
-		_startTime = 0;
-		_poster.visible = true;
-		
-		if (_type == InputType.VIDEO)
+		if (_mediaLoaded)
 		{
-			_stream.close();
-		}
-		else
-		{
-			_soundChannel.stop();
-			_sound.close();
+			_mediaLoaded = false;
+			_isPlaying = false;
+			_stopped = true;
+			_startTime = 0;
+			_poster.visible = true;
+			
+			if (_streamType == StreamType.YOUTUBE)
+			{
+				Reflect.field(_youtubeLoader.content, "destroy")();
+			}
+			else if (_type == InputType.VIDEO)
+			{
+				_stream.close();
+			}
+			else
+			{
+				_soundChannel.stop();
+				_sound.close();
+			}
 		}
 	}
 	
@@ -676,7 +893,7 @@ class Player extends EventDispatcher
 	 */
 	public function forward():Float
 	{	
-		var seekTime = (getTime() + 8) + _startTime;
+		var seekTime = (getCurrentTime() + 8) + _startTime;
 		
 		if (getDuration() > seekTime)
 		{
@@ -692,7 +909,7 @@ class Player extends EventDispatcher
 	 */
 	public function rewind():Float
 	{
-		var seekTime = (getTime() - 8) + _startTime;
+		var seekTime = (getCurrentTime() - 8) + _startTime;
 		
 		if (seekTime >= _startTime)
 		{
@@ -711,7 +928,7 @@ class Player extends EventDispatcher
 	{
 		if (_startTime <= 1 && _downloadCompleted)
 		{
-			if (_type == InputType.VIDEO)
+			if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 			{
 				_stream.seek(seekTime);
 			}
@@ -727,7 +944,7 @@ class Player extends EventDispatcher
 		}
 		else if(_seekPoints.length > 0 && _streamType == StreamType.PSEUDOSTREAM)
 		{
-			seekTime = getBestSeekPoint(seekTime);
+			//seekTime = getBestSeekPoint(seekTime);
 			
 			if (canSeek(seekTime))
 			{
@@ -735,6 +952,8 @@ class Player extends EventDispatcher
 			}
 			else if(seekTime != _startTime)
 			{	
+				_startTime = seekTime;
+				
 				var url:String;
 				if (_mediaSource.indexOf("?") != -1)
 				{
@@ -744,14 +963,29 @@ class Player extends EventDispatcher
 				{
 					url = _mediaSource + "?start=" + seekTime;
 				}
-				
-				_startTime = seekTime;
 				_stream.play(url);
 			}
 		}
+		else if (_streamType == StreamType.YOUTUBE)
+		{
+			if (!canSeek(seekTime))
+			{
+				_startTime = seekTime;
+				Reflect.field(_youtubeLoader.content, "seekTo")(seekTime);
+			}
+			else
+			{
+				Reflect.field(_youtubeLoader.content, "seekTo")(seekTime);
+			}
+			
+		}
+		else if (_streamType == StreamType.RTMP)
+		{
+			_stream.seek(seekTime);
+		}
 		else if(canSeek(seekTime))
 		{
-			if (_type == InputType.VIDEO)
+			if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 			{
 				seekTime = getBestSeekPoint(seekTime);
 				_stream.seek(seekTime);
@@ -833,8 +1067,14 @@ class Player extends EventDispatcher
 			if (_mediaEndReached)
 			{
 				_mediaEndReached = false;
+				_startTime = 0;
 				
-				if (_type == InputType.VIDEO)
+				if (_streamType == StreamType.YOUTUBE)
+				{
+					Reflect.field(_youtubeLoader.content, "seekTo")(0);
+					Reflect.field(_youtubeLoader.content, "playVideo")();
+				}
+				else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 				{
 					_stream.seek(0);
 					_stream.togglePause();
@@ -847,7 +1087,18 @@ class Player extends EventDispatcher
 			}
 			else if (_mediaLoaded)
 			{
-				if (_type == InputType.VIDEO)
+				if (_streamType == StreamType.YOUTUBE)
+				{
+					if (_isPlaying)
+					{
+						Reflect.field(_youtubeLoader.content, "pauseVideo")();
+					}
+					else
+					{
+						Reflect.field(_youtubeLoader.content, "playVideo")();
+					}
+				}
+				else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 				{
 					_stream.togglePause();
 				}
@@ -968,8 +1219,6 @@ class Player extends EventDispatcher
 				soundTransform.volume = _volume;
 			}
 			
-			_stream.soundTransform = soundTransform;
-			
 			isMute =  false;
 		}
 		
@@ -984,7 +1233,11 @@ class Player extends EventDispatcher
 			isMute = true;
 		}
 		
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			Reflect.field(_youtubeLoader.content, "setVolume")(soundTransform.volume * 100);
+		}
+		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 		{
 			_stream.soundTransform = soundTransform;
 		}
@@ -992,6 +1245,7 @@ class Player extends EventDispatcher
 		{
 			_soundChannel.soundTransform = soundTransform;
 		}
+		
 		
 		return isMute;
 	}
@@ -1021,7 +1275,12 @@ class Player extends EventDispatcher
 		//raise volume if not already at max
 		if (_volume < 1)
 		{
-			if (_type == InputType.VIDEO)
+			if (_streamType == StreamType.YOUTUBE)
+			{
+				_volume = (Reflect.field(_youtubeLoader.content, "getVolume")() + 10) / 100;
+				Reflect.field(_youtubeLoader.content, "setVolume")(_volume * 100);
+			}
+			else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 			{
 				_volume = _stream.soundTransform.volume + (10/100);
 				soundTransform.volume = _volume;
@@ -1055,7 +1314,12 @@ class Player extends EventDispatcher
 		//lower sound
 		if(!_soundMuted)
 		{	
-			if (_type == InputType.VIDEO)
+			if (_streamType == StreamType.YOUTUBE)
+			{
+				_volume = (Reflect.field(_youtubeLoader.content, "getVolume")() - 10) / 100;
+				Reflect.field(_youtubeLoader.content, "setVolume")(_volume * 100);
+			}
+			else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 			{
 				_volume = _stream.soundTransform.volume - (10/100);
 				soundTransform.volume = _volume;
@@ -1099,6 +1363,15 @@ class Player extends EventDispatcher
 	{
 		_streamType = streamType;
 	}
+	
+	/**
+	 * Sets the server url for rtmp streams
+	 * @param	server
+	 */
+	public function setServer(server:String):Void
+	{
+		_server = server;
+	}
 	 
 	/**
 	 * To set a reference to a poster image that should be disabled when media is loaded and ready to play
@@ -1140,7 +1413,11 @@ class Player extends EventDispatcher
 		
 		soundTransform.volume = volume;
 		
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			Reflect.field(_youtubeLoader.content, "setVolume")(soundTransform.volume * 100);
+		}
+		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 		{
 			_stream.soundTransform = soundTransform;
 		}
@@ -1173,26 +1450,6 @@ class Player extends EventDispatcher
 	
 	
 	//{Getters
-	/**
-	 * Current playtime of the loaded video
-	 * @return
-	 */
-	public function getTime():Float
-	{
-		var time:Float = 0;
-		
-		if(_type == InputType.VIDEO)
-		{
-			time = _stream.time;
-		}
-		else if (_type == InputType.AUDIO)
-		{
-			time = _soundChannel.position / 1000;
-		}
-		
-		return time;
-	}
-	
 	/**
 	 * Gets the volume amount 0.0 to 1.0
 	 * @return 
@@ -1252,7 +1509,7 @@ class Player extends EventDispatcher
 	 * @return video object for further manipulation
 	 */
 	public function getVideo():Video
-	{
+	{	
 		return _video;
 	}
 	
@@ -1291,7 +1548,12 @@ class Player extends EventDispatcher
 	{
 		var bytesTotal:Float = 0;
 		
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			if(_youtubeLoader != null)
+			bytesTotal = Reflect.field(_youtubeLoader.content, "getVideoBytesTotal")();
+		}
+		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 		{
 			bytesTotal = _stream.bytesTotal;
 		}
@@ -1311,7 +1573,12 @@ class Player extends EventDispatcher
 	{
 		var bytesLoaded:Float = 0;
 		
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			if(_youtubeLoader != null)
+			bytesLoaded = Reflect.field(_youtubeLoader.content, "getVideoBytesLoaded")();
+		}
+		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 		{
 			bytesLoaded = _stream.bytesLoaded;
 		}
@@ -1333,6 +1600,24 @@ class Player extends EventDispatcher
 	}
 	
 	/**
+	 * The stream method for the current playing media
+	 * @return
+	 */
+	public function getStreamType():String
+	{
+		return _streamType;
+	}
+	
+	/**
+	 * The server url for current rtmp stream
+	 * @return
+	 */
+	public function getServer():String
+	{
+		return _server;
+	}
+	
+	/**
 	 * To check current quality mode
 	 * @return true if high quality false if low
 	 */
@@ -1348,7 +1633,22 @@ class Player extends EventDispatcher
 	public function getCurrentTime():Float
 	{
 		var time:Float = 0;
-		if (_type == InputType.VIDEO)
+		if (_streamType == StreamType.YOUTUBE)
+		{
+			if(_youtubeLoader != null)
+			{
+				time = Reflect.field(_youtubeLoader.content, "getCurrentTime")();
+			}
+			else
+			{
+				time = 0;
+			}
+		}
+		else if (_streamType == StreamType.PSEUDOSTREAM)
+		{
+			time = getStartTime() + _stream.time;
+		}
+		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 		{
 			time = _stream.time;
 		}

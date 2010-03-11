@@ -17,7 +17,7 @@ The above example is one of the ways to embed the player to your html files. Jus
 	<param name="quality" value="high">
 	<param name="scale" value="noscale">
 	<param name="wmode" value="opaque">
-	<param name="flashvars" value="file=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1">
+	<param name="flashvars" value="source=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1">
 	<param name="seamlesstabbing" value="false">
 	<embed
 	  type="application/x-shockwave-flash"
@@ -30,7 +30,7 @@ The above example is one of the ways to embed the player to your html files. Jus
 	  quality="high"
 	  scale="noscale"
 	  wmode="opaque"
-	  flashvars="file=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1"
+	  flashvars="source=jaris-intro.mp4&type=video&streamtype=file&poster=poster.png&autostart=false&logo=logo.png&logoposition=top left&logoalpha=30&logowidth=130&logolink=http://jaris.sourceforge.net&hardwarescaling=false&darkcolor=000000&brightcolor=4c4c4c&controlcolor=FFFFFF&hovercolor=67A8C1"
 	  seamlesstabbing="false"
 	>
 	  <noembed>
@@ -45,14 +45,17 @@ Flash Variables
 
 Here is the list of variables that you can pass to the player.
 
-    * file:
-      This is the actual file that is going to be played.
+    * source:
+      This is the actual path of the media that is going to be played.
 	  
 	* type:
       The type of file to play, allowable values are: audio, video.
 	  
     * streamtype:
-      The stream type of the file, allowable values are: file, http (for pseudostream) and soon rmtp.
+      The stream type of the file, allowable values are: file, http, rmtp, youtube.
+	  
+	* server:
+	  Used in coordination with rtmp stream servers
 	  
 	* duration:
       Total times in seconds for input media or formatted string in the format hh:mm:ss

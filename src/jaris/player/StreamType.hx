@@ -30,4 +30,5 @@ class StreamType
 	public static var FILE:String = "file";
 	public static var PSEUDOSTREAM:String = "http";
 	public static var RTMP:String = "rtmp";
+	public static var YOUTUBE = "youtube";
 }

@@ -27,7 +27,6 @@ import flash.display.MovieClip;
 import flash.display.Stage;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
-import flash.events.Event;
 import flash.Lib;
 import flash.system.Capabilities;
 import jaris.display.Logo;
@@ -70,17 +69,19 @@ class Main
 			var autoStart:Bool = parameters.autostart == "true" || parameters.autostart == "" || parameters.autostart == null? true: false;
 			var type:String = parameters.type != "" && parameters.type != null? parameters.type : InputType.VIDEO;
 			var streamType:String = parameters.streamtype != "" && parameters.streamtype != null? parameters.streamtype : StreamType.FILE;
+			var server:String = parameters.server != "" && parameters.server != null? parameters.server : "";
 			
 			player.setType(type);
 			player.setStreamType(streamType);
+			player.setServer(server);
 			
 			if (autoStart)
 			{
-				player.load(parameters.file, type, streamType);
+				player.load(parameters.source, type, streamType, server);
 			}
 			else
 			{
-				player.setSource(parameters.file);
+				player.setSource(parameters.source);
 			}
 			
 			player.setPoster(posterImage);
@@ -89,8 +90,8 @@ class Main
 		else
 		{
 			//For development purposes
-			//player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
-			player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
+			player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
+			//player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
 		}
 		
 		//Modify Context Menu

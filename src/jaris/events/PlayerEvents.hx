@@ -28,7 +28,7 @@ import flash.media.Sound;
 import flash.net.NetStream;
 
 /**
- * Implements a player events
+ * Implements the player events
  */
 class PlayerEvents extends Event
 {
