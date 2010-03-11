@@ -80,7 +80,7 @@ class Logo extends Sprite
 	 * Triggers when the logo image finished loading.
 	 * @param	event
 	 */
-	private function onLoaderComplete(event:Event)
+	private function onLoaderComplete(event:Event):Void
 	{
 		addChild(_loader);
 		
@@ -96,7 +96,7 @@ class Logo extends Sprite
 	 * Recalculate logo position on stage resize
 	 * @param	event
 	 */
-	private function onStageResize(event:Event)
+	private function onStageResize(event:Event):Void
 	{
 		setPosition(_position);
 	}
@@ -105,7 +105,7 @@ class Logo extends Sprite
 	 * Opens the an url when the logo is clicked
 	 * @param	event
 	 */
-	private function onLogoClick(event:MouseEvent)
+	private function onLogoClick(event:MouseEvent):Void
 	{
 		Lib.getURL(new URLRequest(_link), "_blank");
 	}
@@ -114,7 +114,7 @@ class Logo extends Sprite
 	 * Position where logo will be showing
 	 * @param	position values could be top left, top right, bottom left, bottom right
 	 */
-	public function setPosition(position:String)
+	public function setPosition(position:String):Void
 	{
 		switch(position)
 		{
@@ -144,7 +144,7 @@ class Logo extends Sprite
 	 * To set logo transparency
 	 * @param	alpha
 	 */
-	public function setAlpha(alpha:Float)
+	public function setAlpha(alpha:Float):Void
 	{
 		this.alpha = alpha;
 	}
@@ -153,7 +153,7 @@ class Logo extends Sprite
 	 * Sets logo width and recalculates height keeping aspect ratio
 	 * @param	width
 	 */
-	public function setWidth(width:Float) 
+	public function setWidth(width:Float):Void
 	{
 		if (width > 0)
 		{
@@ -166,7 +166,7 @@ class Logo extends Sprite
 	 * Link that opens when clicked the logo image is clicked
 	 * @param	link
 	 */
-	public function setLink(link:String)
+	public function setLink(link:String):Void
 	{
 		_link = link;
 		this.buttonMode = true;

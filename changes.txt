@@ -1,4 +1,9 @@
-﻿Jaris FLV Player v2.0.3 beta - 03/10/2010
+﻿Jaris FLV Player v2.0.4 beta - 03/11/2010
+
+	* Fixed a drawing issue where seek bar after fullscreen stayed long
+	* Documented other parts of the code
+
+Jaris FLV Player v2.0.3 beta - 03/10/2010
 
 	* Support for rtmp streaming
 	* support for youtube

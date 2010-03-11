@@ -47,7 +47,7 @@ class Poster extends Sprite
 	private var _loading:Bool;
 	private var _loaderStatus:jaris.display.Loader;
 	
-	public function new(source:String):Void
+	public function new(source:String)
 	{
 		super();
 		

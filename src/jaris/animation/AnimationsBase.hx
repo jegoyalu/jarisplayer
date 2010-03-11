@@ -60,25 +60,29 @@ class AnimationsBase
 		_movieClip = Lib.current;
 	}
 	
-	private function slideInTimer(event:TimerEvent)
+	/**
+	 * Moves an object until is shown
+	 * @param	event
+	 */
+	private function slideInTimer(event:TimerEvent):Void
 	{
 		var last:Bool = false;
 		switch(_slideInPosition)
 		{
 			case "top":
-				if (_currentObject.y >= _slideInOrigY) { _slideInTimer.stop(); last = true; }
+				if (_currentObject.y >= _slideInOrigY) { last = true; }
 				_currentObject.y += _slideInIncrements;
 				
 			case "left":
-				if (_currentObject.x >= _slideInOrigX) { _slideInTimer.stop(); last = true; }
+				if (_currentObject.x >= _slideInOrigX) { last = true; }
 				_currentObject.x += _slideInIncrements;
 				
 			case "bottom":
-				if (_currentObject.y <= _slideInOrigY) { _slideInTimer.stop(); last = true; }
+				if (_currentObject.y <= _slideInOrigY) { last = true; }
 				_currentObject.y -= _slideInIncrements;
 				
 			case "right":
-				if (_currentObject.x <= _slideInOrigX) { _slideInTimer.stop(); last = true; }
+				if (_currentObject.x <= _slideInOrigX) { last = true; }
 				_currentObject.x -= _slideInIncrements;
 		}
 		
@@ -86,10 +90,15 @@ class AnimationsBase
 		{
 			_currentObject.x = _slideInOrigX;
 			_currentObject.y = _slideInOrigY;
+			_slideInTimer.stop();
 		}
 	}
 	
-	private function slideOutTimer(event:TimerEvent)
+	/**
+	 * Moves an object until is hidden
+	 * @param	event
+	 */
+	private function slideOutTimer(event:TimerEvent):Void
 	{
 		if (((_currentObject.x + _currentObject.width)  < 0) || (_currentObject.y + _currentObject.height < 0))
 		{
@@ -126,7 +135,11 @@ class AnimationsBase
 		}
 	}
 	
-	private function fadeOutTimer(event:TimerEvent)
+	/**
+	 * Lower object transparency until not visible
+	 * @param	event
+	 */
+	private function fadeOutTimer(event:TimerEvent):Void
 	{
 		if (_currentObject.alpha > 0)
 		{
@@ -139,7 +152,11 @@ class AnimationsBase
 		}
 	}
 	
-	private function fadeInTimer(event:TimerEvent)
+	/**
+	 * Highers object transparency until visible
+	 * @param	event
+	 */
+	private function fadeInTimer(event:TimerEvent):Void
 	{
 		if (_currentObject.alpha < 1)
 		{
@@ -151,7 +168,13 @@ class AnimationsBase
 		}
 	}
 	
-	public function slideIn(object:Dynamic, slidePosition:String, speed:Float=1000)
+	/**
+	 * Effect that moves an object into stage
+	 * @param	object the element to move
+	 * @param	slidePosition could be top, left bottom or right
+	 * @param	speed the time in seconds for duration of the animation
+	 */
+	public function slideIn(object:Dynamic, slidePosition:String, speed:Float=1000):Void
 	{
 		if (object.visible)
 		{
@@ -194,7 +217,13 @@ class AnimationsBase
 		_slideInTimer.start();
 	}
 	
-	public function slideOut(object:Dynamic, slidePosition:String, speed:Float=1000)
+	/**
+	 * Effect that moves an object out of stage
+	 * @param	object the element to move
+	 * @param	slidePosition could be top, left bottom or right
+	 * @param	speed the time in seconds for duration of the animation
+	 */
+	public function slideOut(object:Dynamic, slidePosition:String, speed:Float=1000):Void
 	{
 		if (!object.visible)
 		{
@@ -233,7 +262,12 @@ class AnimationsBase
 		_slideOutTimer.start();
 	}
 	
-	public function fadeOut(object:Dynamic, speed:Float=500)
+	/**
+	 * Effect that dissapears an object from stage
+	 * @param	object the element to dissapear
+	 * @param	speed the time in seconds for the duration of the animation
+	 */
+	public function fadeOut(object:Dynamic, speed:Float=500):Void
 	{
 		if (!object.visible)
 		{
@@ -248,7 +282,12 @@ class AnimationsBase
 		_fadeOutTimer.start();
 	}
 	
-	public function fadeIn(object:Dynamic, speed:Float=500)
+	/**
+	 * Effect that shows a hidden object an in stage
+	 * @param	object the element to show
+	 * @param	speed the time in seconds for the duration of the animation
+	 */
+	public function fadeIn(object:Dynamic, speed:Float=500):Void
 	{
 		if (object.visible)
 		{

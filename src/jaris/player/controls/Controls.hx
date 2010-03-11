@@ -208,7 +208,6 @@ class Controls extends MovieClip {
 		_volumeIcon.addEventListener(MouseEvent.CLICK, onVolumeIconClick);
 		_volumeTrack.addEventListener(MouseEvent.CLICK, onVolumeTrackClick);
 		
-		_player.addEventListener(PlayerEvents.FULLSCREEN, onPlayerFullScreen);
 		_player.addEventListener(PlayerEvents.MOUSE_HIDE, onPlayerMouseHide);
 		_player.addEventListener(PlayerEvents.MOUSE_SHOW, onPlayerMouseShow);
 		_player.addEventListener(PlayerEvents.MEDIA_INITIALIZED, onPlayerMediaInitialized);
@@ -222,6 +221,7 @@ class Controls extends MovieClip {
 		_stage.addEventListener(MouseEvent.MOUSE_UP, onThumbMouseUp);
 		_stage.addEventListener(MouseEvent.MOUSE_OUT, onThumbMouseUp);
 		_stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
+		_stage.addEventListener(Event.RESIZE, onStageResize);
 		
 		_hideControlsTimer.addEventListener(TimerEvent.TIMER, hideControlsTimer);
 		
@@ -266,7 +266,7 @@ class Controls extends MovieClip {
 	 * Keeps syncronized various elements of the controls like the thumb and download track bar
 	 * @param	event
 	 */
-	private function onEnterFrame(event:Event)
+	private function onEnterFrame(event:Event):Void
 	{
 		if(_player.getDuration() > 0) {
 			if (_scrubbing) 
@@ -305,6 +305,15 @@ class Controls extends MovieClip {
 	}
 	
 	/**
+	 * Function fired by a stage resize eventthat redraws the player controls
+	 * @param	event
+	 */
+	private function onStageResize(event:Event):Void
+	{
+		redrawControls();
+	}
+	
+	/**
 	 * Toggles pause or play
 	 * @param	event
 	 */
@@ -339,7 +348,7 @@ class Controls extends MovieClip {
 	 * Toggles between window and fullscreen mode
 	 * @param	event
 	 */
-	private function onFullscreenClick(event:MouseEvent)
+	private function onFullscreenClick(event:MouseEvent):Void
 	{
 		_player.toggleFullscreen();
 	}
@@ -348,7 +357,7 @@ class Controls extends MovieClip {
 	 * Toggles between mute and unmute
 	 * @param	event
 	 */
-	private function onVolumeIconClick(event: MouseEvent)
+	private function onVolumeIconClick(event: MouseEvent):Void
 	{
 		_player.toggleMute();
 	}
@@ -357,7 +366,7 @@ class Controls extends MovieClip {
 	 * Detect user click on volume track control and change volume according
 	 * @param	event
 	 */
-	private function onVolumeTrackClick(event:MouseEvent)
+	private function onVolumeTrackClick(event:MouseEvent):Void
 	{
 		var percent:Float = _volumeTrack.height - _volumeTrack.mouseY;
 		var volume:Float = 1.0 * (percent / _volumeTrack.height);
@@ -407,26 +416,17 @@ class Controls extends MovieClip {
 	 * Monitors keyboard play pause actions to update icons
 	 * @param	event
 	 */
-	private function onPlayerPlayPause(event:PlayerEvents)
+	private function onPlayerPlayPause(event:PlayerEvents):Void
 	{
 		_playControl.visible = !_player.isPlaying();
 		_pauseControl.visible = _player.isPlaying();
 	}
 	
 	/**
-	 * Function fired by the player FULLSCREEN event that redraws the player controls
-	 * @param	event
-	 */
-	private function onPlayerFullScreen(event:PlayerEvents)
-	{
-		redrawControls();
-	}
-	
-	/**
 	 * Resizes the video player on windowed mode substracting the seekbar height
 	 * @param	event
 	 */
-	private function onPlayerResize(event:PlayerEvents)
+	private function onPlayerResize(event:PlayerEvents):Void
 	{
 		if (!_player.isFullscreen())
 		{
@@ -438,8 +438,6 @@ class Controls extends MovieClip {
 				_player.getVideo().x = (_stage.stageWidth / 2) - (_player.getVideo().width / 2);
 			}
 		}
-		
-		redrawControls();
 	}
 	
 	/**
@@ -457,7 +455,7 @@ class Controls extends MovieClip {
 	 * Hides seekbar if on fullscreen.
 	 * @param	event
 	 */
-	private function onPlayerMouseHide(event:PlayerEvents)
+	private function onPlayerMouseHide(event:PlayerEvents):Void
 	{
 		if (_seekBar.visible && _player.isFullscreen())
 		{
@@ -469,7 +467,7 @@ class Controls extends MovieClip {
 	 * Shows seekbar
 	 * @param	event
 	 */
-	private function onPlayerMouseShow(event:PlayerEvents)
+	private function onPlayerMouseShow(event:PlayerEvents):Void
 	{
 		//Only use slidein effect on fullscreen since switching to windowed mode on
 		//hardware scaling causes a bug by a slow response on stage height changes
@@ -487,7 +485,7 @@ class Controls extends MovieClip {
 	 * Translates a user click in to time and seeks to it
 	 * @param	event
 	 */
-	private function onTrackClick(event:MouseEvent)
+	private function onTrackClick(event:MouseEvent):Void
 	{
 		var clickPosition:Float = _track.mouseX;
 		_player.seek(_player.getDuration() * (clickPosition / _track.width));
@@ -530,7 +528,7 @@ class Controls extends MovieClip {
 	 * Enables dragging of thumb for seeking media
 	 * @param	event
 	 */
-	private function onThumbMouseDown(event:MouseEvent)
+	private function onThumbMouseDown(event:MouseEvent):Void
 	{
 		_scrubbing = true;
 		var rectangle:Rectangle = new Rectangle(_track.x, _track.y, _track.width-_thumb.width, 0);
@@ -541,7 +539,7 @@ class Controls extends MovieClip {
 	 * Changes thumb seek control to hover color
 	 * @param	event
 	 */
-	private function onThumbHover(event:MouseEvent)
+	private function onThumbHover(event:MouseEvent):Void
 	{
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_hoverColor);
@@ -553,7 +551,7 @@ class Controls extends MovieClip {
 	 * Changes thumb seek control to control color
 	 * @param	event
 	 */
-	private function onThumbMouseOut(event:MouseEvent)
+	private function onThumbMouseOut(event:MouseEvent):Void
 	{
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_controlColor);
@@ -565,7 +563,7 @@ class Controls extends MovieClip {
 	 * Disables dragging of thumb
 	 * @param	event
 	 */
-	private function onThumbMouseUp(event:MouseEvent) 
+	private function onThumbMouseUp(event:MouseEvent):Void
 	{
 		_scrubbing = false;
 		_thumb.stopDrag(  );
@@ -580,16 +578,6 @@ class Controls extends MovieClip {
 	private function redrawControls():Void
 	{	
 		drawSeekControls();
-		
-		var count:UInt = 1;
-		//draw until seekbar width == stage width
-		while(_seekBar.width != _stage.stageWidth && count <= 3)
-		{
-			drawSeekControls();
-			
-			count++;
-		}
-		
 		drawPlayingControls();
 	}
 	
@@ -628,28 +616,28 @@ class Controls extends MovieClip {
 		_thumb.graphics.clear();
 		
 		//Draw seek bar
-		var _seekBarWidth:Float = _stage.stageWidth;
-		var _seekBarHeight:Float = 25;
+		var _seekBarWidth:UInt = _stage.stageWidth;
+		var _seekBarHeight:UInt = 25;
 		_seekBar.x = 0;
-		_seekBar.y = _stage.stageHeight - 25;
+		_seekBar.y = _stage.stageHeight - _seekBarHeight;
 		var matrix:Matrix = new Matrix(  );
-		matrix.createGradientBox(_seekBar.width, _seekBar.height, Utils.degreesToRadians(90), 0, 0);
+		matrix.createGradientBox(_seekBarWidth, _seekBarHeight, Utils.degreesToRadians(90), 0, 0);
 		var colors:Array<UInt> = [_brightColor, _darkColor];
 		var alphas:Array<UInt> = [1, 1];
 		var ratios:Array<UInt> = [0, 255];
 		_seekBar.graphics.lineStyle();
 		_seekBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
-		_seekBar.graphics.drawRect(0, 0, _stage.stageWidth, 25);
+		_seekBar.graphics.drawRect(0, 0, _seekBarWidth, _seekBarHeight);
 		_seekBar.graphics.endFill();
 		
 		//Draw current play time label
 		_currentPlayTimeLabel.textColor = _controlColor;
-		_currentPlayTimeLabel.y = _seekBar.height - (_seekBar.height/2)-(_currentPlayTimeLabel.height/2);
+		_currentPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight/2)-(_currentPlayTimeLabel.height/2);
 		
 		//Draw total play time label
 		_totalPlayTimeLabel.textColor = _controlColor;
-		_totalPlayTimeLabel.x = _seekBar.width - _totalPlayTimeLabel.width;
-		_totalPlayTimeLabel.y = _seekBar.height - (_seekBar.height / 2) - (_totalPlayTimeLabel.height / 2);
+		_totalPlayTimeLabel.x = _seekBarWidth - _totalPlayTimeLabel.width;
+		_totalPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight / 2) - (_totalPlayTimeLabel.height / 2);
 		
 		//Draw download progress
 		drawDownloadProgress();
@@ -658,14 +646,14 @@ class Controls extends MovieClip {
 		_track.x = _currentPlayTimeLabel.width;
 		_track.graphics.lineStyle(1, _controlColor);
 		_track.graphics.beginFill(_darkColor, 0);
-		_track.graphics.drawRect(0, (_seekBar.height / 2) - (10 / 2), _seekBar.width - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
+		_track.graphics.drawRect(0, (_seekBarHeight / 2) - (10 / 2), _seekBarWidth - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
 		_track.graphics.endFill();
 		
 		//Draw thumb
 		_thumb.x = _currentPlayTimeLabel.width;
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_controlColor);
-		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
+		_thumb.graphics.drawRect(0, (_seekBarHeight/2)-(10/2), 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -680,26 +668,25 @@ class Controls extends MovieClip {
 		_volumeSlider.graphics.clear();
 		
 		//Draw controls bar
-		var barWidth = _stage.stageHeight < 330 ? 45 : 60;
 		var barMargin = _stage.stageHeight < 330 ? 5 : 25;
+		var barHeight = _stage.stageHeight - _seekBar.height - (barMargin * 2);
+		var barWidth = _stage.stageHeight < 330 ? 45 : 60;
 		_controlsBar.x = (_stage.stageWidth - barWidth) + 20;
 		_controlsBar.y = barMargin;
 		
 		var matrix:Matrix = new Matrix(  );
-		matrix.createGradientBox(barWidth, _stage.stageHeight - 75, Utils.degreesToRadians(0), 0, _stage.stageHeight-75);
+		matrix.createGradientBox(barWidth, barHeight, Utils.degreesToRadians(0), 0, barHeight);
 		var colors:Array<UInt> = [_brightColor, _darkColor];
 		var alphas:Array<Float> = [0.75, 0.75];
 		var ratios:Array<UInt> = [0, 255];
 		_controlsBar.graphics.lineStyle();
 		_controlsBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
-		_controlsBar.graphics.drawRoundRect(0, 0, barWidth, _stage.stageHeight-_seekBar.height-(barMargin * 2), 20, 20);
+		_controlsBar.graphics.drawRoundRect(0, 0, barWidth, barHeight, 20, 20);
 		_controlsBar.graphics.endFill();
-		_controlsBar.width = barWidth;	
-		_controlsBar.height = _stage.stageHeight - _seekBar.height - (barMargin * 2);
 		
 		var topMargin:Float = _stage.stageHeight < 330 ? 5 : 10;
-		var barCenter:Float = (_controlsBar.width - 20) / 2;
-		var buttonSize:Float = ((80 / 100) * (_controlsBar.width - 20));
+		var barCenter:Float = (barWidth - 20) / 2;
+		var buttonSize:Float = ((80 / 100) * (barWidth - 20));
 		var buttonX:Float = buttonSize / 2;
 		
 		//Draw playbutton
@@ -729,7 +716,7 @@ class Controls extends MovieClip {
 		//Draw volume icon
 		_volumeIcon.setNormalColor(_controlColor);
 		_volumeIcon.setHoverColor(_hoverColor);
-		_volumeIcon.setPosition(_playControl.x, _controlsBar.height - _playControl.height - topMargin);
+		_volumeIcon.setPosition(_playControl.x, barHeight - _playControl.height - topMargin);
 		_volumeIcon.setSize(buttonSize, buttonSize);
 		
 		//Draw volume track
