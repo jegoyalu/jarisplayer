@@ -61,19 +61,19 @@ Here is the list of variables that you can pass to the player.
       Total times in seconds for input media or formatted string in the format hh:mm:ss
     
 	* poster:
-      Screenshot of the video that is displayed before playing.
+      Screenshot of the video that is displayed before playing in png, jpg or gif format.
     
 	* autostart:
       A true or false value that indicates to the player if it should auto play the video on load.
     
 	* logo:
-      An image of your logo.
+      The path to the image of your logo.
     
 	* logoposition:
       The position of the logo in the player, permitted values are: top left, top right, bottom left and bottom right
     
 	* logoalpha:
-      The transparency percent. values permitted 1 to 100
+      The transparency percent. values permitted 0 to 100, while more higher the vale less transparency is applied.
     
 	* logowidth:
       The width in pixels of the logo.
@@ -88,16 +88,16 @@ Here is the list of variables that you can pass to the player.
       The transparency percent. values permitted 1 to 100
     
 	* darkcolor:
-      The darker color of player controls
+      The darker color of player controls in html hexadecimal format
     
 	* brightcolor:
-      The bright color of player controls
+      The bright color of player controls in html hexadecimal format
     
 	* controlcolor:
-      The face color of controls
+      The face color of controls in html hexadecimal format
     
 	* hovercolor:
-      On mouse hover color for controls
+      On mouse hover color for controls in html hexadecimal format
 
 ==================	  
 Keyboard Shortcuts

@@ -29,7 +29,7 @@ class Version
 {
 	public static var NUMBER:String = "2.0.5";
 	public static var STATUS:String = "beta";
-	public static var DATE:String = "11";
+	public static var DATE:String = "12";
 	public static var MONTH:String = "03";
 	public static var YEAR:String = "2010";
 }
