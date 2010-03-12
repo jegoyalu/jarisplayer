@@ -1079,7 +1079,6 @@ class Player extends EventDispatcher
 			if (_mediaEndReached)
 			{
 				_mediaEndReached = false;
-				_startTime = 0;
 				
 				if (_streamType == StreamType.YOUTUBE)
 				{
