@@ -1480,6 +1480,15 @@ class Player extends EventDispatcher
 	}
 	
 	/**
+	 * The current aspect ratio of the loaded Player in string format
+	 * @return
+	 */
+	public function getAspectRatioString():String
+	{
+		return _currentAspectRatio;
+	}
+	
+	/**
 	 * Original aspect ratio of the video
 	 * @return original aspect ratio
 	 */
