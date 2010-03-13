@@ -311,7 +311,6 @@ class Player extends EventDispatcher
 		{
 			case Keyboard.TAB:
 				toggleAspectRatio();
-				callEvents(PlayerEvents.ASPECT_RATIO);
 			
 			case F_KEY:
 				toggleFullscreen();
@@ -1065,6 +1064,8 @@ class Player extends EventDispatcher
 		}
 		
 		resizeAndCenterPlayer();
+		
+		callEvents(PlayerEvents.ASPECT_RATIO);
 		
 		return _aspectRatio;
 	}

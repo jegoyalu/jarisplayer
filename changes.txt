@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.5 beta - 03/12/2010
+﻿Jaris FLV Player v2.0.6 beta - 03/13/2010
+
+	* Added: display current aspect ratio label on aspect ratio toggle
+
+Jaris FLV Player v2.0.5 beta - 03/12/2010
 
 	* Improved aspect ratio toogle when video aspect ratio is already on the aspect ratios list
 	* Fixed context menu aspect ratio rotation

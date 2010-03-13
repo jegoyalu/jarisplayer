@@ -32,8 +32,10 @@ import flash.events.MouseEvent;
 import flash.display.MovieClip;
 import flash.net.NetStream;
 import flash.geom.Rectangle;
+import flash.text.AntiAliasType;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
+import flash.text.TextFormat;
 import flash.utils.Timer;
 import jaris.animation.Animation;
 import jaris.display.Loader;
@@ -67,6 +69,7 @@ class Controls extends MovieClip {
 	private var _controlColor:UInt;
 	private var _hoverColor:UInt;
 	private var _hideControlsTimer:Timer;
+	private var _hideAspectRatioLabelTimer:Timer;
 	private var _currentPlayTimeLabel:TextField;
 	private var _totalPlayTimeLabel:TextField;
 	private var _seekPlayTimeLabel:TextField;
@@ -82,6 +85,8 @@ class Controls extends MovieClip {
 	private var _volumeTrack:Sprite;
 	private var _volumeSlider:Sprite;
 	private var _loader:Loader;
+	private var _aspectRatioLabelContainer:Sprite;
+	private var _aspectRatioLabel:TextField;
 	//}
 	
 	
@@ -100,6 +105,7 @@ class Controls extends MovieClip {
 		_hoverColor = 0x67A8C1;
 		_percentLoaded = 0.0;
 		_hideControlsTimer = new Timer(500);
+		_hideAspectRatioLabelTimer = new Timer(500);
 		_controlsVisible = false;
 		//}
 		
@@ -175,6 +181,17 @@ class Controls extends MovieClip {
 		_controlsBar.addChild(_volumeTrack); 
 		//}
 		
+		//{Aspect ratio label
+		_aspectRatioLabelContainer = new Sprite();
+		addChild(_aspectRatioLabelContainer);
+		
+		_aspectRatioLabel = new TextField();
+		_aspectRatioLabel.autoSize = TextFieldAutoSize.CENTER;
+		_aspectRatioLabel.text = "original";
+		_aspectRatioLabel.tabEnabled = false;
+		_aspectRatioLabelContainer.addChild(_aspectRatioLabel);
+		//}
+		
 		redrawControls();
 		
 		//{Loader bar
@@ -217,6 +234,7 @@ class Controls extends MovieClip {
 		_player.addEventListener(PlayerEvents.PLAY_PAUSE, onPlayerPlayPause);
 		_player.addEventListener(PlayerEvents.PLAYBACK_FINISHED, onPlayerPlaybackFinished);
 		_player.addEventListener(PlayerEvents.CONNECTION_FAILED, onPlayerStreamNotFound);
+		_player.addEventListener(PlayerEvents.ASPECT_RATIO, onPlayerAspectRatio);
 		
 		_stage.addEventListener(MouseEvent.MOUSE_UP, onThumbMouseUp);
 		_stage.addEventListener(MouseEvent.MOUSE_OUT, onThumbMouseUp);
@@ -224,6 +242,7 @@ class Controls extends MovieClip {
 		_stage.addEventListener(Event.RESIZE, onStageResize);
 		
 		_hideControlsTimer.addEventListener(TimerEvent.TIMER, hideControlsTimer);
+		_hideAspectRatioLabelTimer.addEventListener(TimerEvent.TIMER, hideAspectRatioLabelTimer);
 		
 		_hideControlsTimer.start();
 		//}
@@ -256,6 +275,20 @@ class Controls extends MovieClip {
 				hideControls();
 				_hideControlsTimer.stop();
 			}
+		}
+	}
+	
+	/**
+	 * Hides aspect ratio label
+	 * @param	event
+	 */
+	private function hideAspectRatioLabelTimer(event:TimerEvent):Void
+	{	
+		//wait till fade in effect finish
+		if (_aspectRatioLabelContainer.alpha >= 1)
+		{
+			Animation.fadeOut(_aspectRatioLabelContainer, 300);
+			_hideAspectRatioLabelTimer.stop();
 		}
 	}
 	//}
@@ -399,6 +432,26 @@ class Controls extends MovieClip {
 	private function onPlayerNotBuffering(event:PlayerEvents):Void
 	{
 		_loader.hide();
+	}
+	
+	/**
+	 * Show the selected aspect ratio
+	 * @param	event
+	 */
+	private function onPlayerAspectRatio(event:PlayerEvents):Void
+	{
+		_hideAspectRatioLabelTimer.stop();
+		_aspectRatioLabel.text = _player.getAspectRatioString();
+		drawAspectRatioLabel();
+		
+		while (_aspectRatioLabelContainer.visible)
+		{
+			//wait till fade out finishes
+		}
+		
+		Animation.fadeIn(_aspectRatioLabelContainer, 100);
+		
+		_hideAspectRatioLabelTimer.start();
 	}
 		
 	/**
@@ -579,6 +632,7 @@ class Controls extends MovieClip {
 	{	
 		drawSeekControls();
 		drawPlayingControls();
+		drawAspectRatioLabel();
 	}
 	
 	/**
@@ -737,12 +791,41 @@ class Controls extends MovieClip {
 		_volumeSlider.graphics.endFill();
 		
 	}
+	
+	private function drawAspectRatioLabel():Void
+	{
+		_aspectRatioLabelContainer.graphics.clear();
+		_aspectRatioLabelContainer.visible = false;
+		
+		//Update aspect ratio label
+		var textFormat:TextFormat = new TextFormat();
+		textFormat.font = "arial";
+		textFormat.bold = true;
+		textFormat.size = 40;
+		textFormat.color = _controlColor;
+		
+		_aspectRatioLabel.setTextFormat(textFormat);
+		_aspectRatioLabel.x = (_stage.stageWidth / 2) - (_aspectRatioLabel.width / 2);
+		_aspectRatioLabel.y = (_stage.stageHeight / 2) - (_aspectRatioLabel.height / 2);
+		_aspectRatioLabel.antiAliasType = AntiAliasType.NORMAL;
+		
+		//Draw aspect ratio label container
+		_aspectRatioLabelContainer.x = _aspectRatioLabel.x - 10;
+		_aspectRatioLabelContainer.y = _aspectRatioLabel.y - 10;
+		_aspectRatioLabelContainer.graphics.lineStyle(3, _controlColor);
+		_aspectRatioLabelContainer.graphics.beginFill(_brightColor, 1);
+		_aspectRatioLabelContainer.graphics.drawRoundRect(0, 0, _aspectRatioLabel.width + 20, _aspectRatioLabel.height + 20, 15, 15);
+		_aspectRatioLabelContainer.graphics.endFill();
+		
+		_aspectRatioLabel.x = 10;
+		_aspectRatioLabel.y = 10;
+	}
 	//}
 	
 	
 	//{Private Methods
 	/**
-	 * Hide de play controls bar
+	 * Hide the play controls bar
 	 */
 	private function hideControls():Void
 	{
