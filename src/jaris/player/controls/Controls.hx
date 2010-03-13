@@ -113,7 +113,6 @@ class Controls extends MovieClip {
 		_textFormat.font = "arial";
 		_textFormat.color = _controlColor;
 		_textFormat.size = 14;
-		_textFormat.bold = true;
 		//}
 		
 		//{Seeking Controls initialization
