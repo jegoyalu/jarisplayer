@@ -87,6 +87,7 @@ class Controls extends MovieClip {
 	private var _loader:Loader;
 	private var _aspectRatioLabelContainer:Sprite;
 	private var _aspectRatioLabel:TextField;
+	private var _textFormat:TextFormat;
 	//}
 	
 	
@@ -107,6 +108,12 @@ class Controls extends MovieClip {
 		_hideControlsTimer = new Timer(500);
 		_hideAspectRatioLabelTimer = new Timer(500);
 		_controlsVisible = false;
+		
+		_textFormat = new TextFormat();
+		_textFormat.font = "arial";
+		_textFormat.color = _controlColor;
+		_textFormat.size = 14;
+		_textFormat.bold = true;
 		//}
 		
 		//{Seeking Controls initialization
@@ -134,12 +141,14 @@ class Controls extends MovieClip {
 		_currentPlayTimeLabel.autoSize = TextFieldAutoSize.LEFT;
 		_currentPlayTimeLabel.text = "00:00:00";
 		_currentPlayTimeLabel.tabEnabled = false;
+		_currentPlayTimeLabel.setTextFormat(_textFormat);
 		_seekBar.addChild(_currentPlayTimeLabel);
 		
 		_totalPlayTimeLabel = new TextField();
 		_totalPlayTimeLabel.autoSize = TextFieldAutoSize.LEFT;
 		_totalPlayTimeLabel.text = "00:00:00";
 		_totalPlayTimeLabel.tabEnabled = false;
+		_totalPlayTimeLabel.setTextFormat(_textFormat);
 		_seekBar.addChild(_totalPlayTimeLabel);
 		
 		_seekPlayTimeLabel = new TextField();
@@ -147,6 +156,7 @@ class Controls extends MovieClip {
 		_seekPlayTimeLabel.autoSize = TextFieldAutoSize.LEFT;
 		_seekPlayTimeLabel.text = "00:00:00";
 		_seekPlayTimeLabel.tabEnabled = false;
+		_seekPlayTimeLabel.setTextFormat(_textFormat);
 		addChild(_seekPlayTimeLabel);
 		//}
 		
@@ -309,6 +319,7 @@ class Controls extends MovieClip {
 			else 
 			{
 				_currentPlayTimeLabel.text = Utils.formatTime(_player.getCurrentTime());
+				_currentPlayTimeLabel.setTextFormat(_textFormat);
 				_thumb.x = _player.getCurrentTime() / _player.getDuration() * (_track.width-_thumb.width) + _track.x;
 			}
 		}
@@ -449,7 +460,7 @@ class Controls extends MovieClip {
 			//wait till fade out finishes
 		}
 		
-		Animation.fadeIn(_aspectRatioLabelContainer, 100);
+		Animation.fadeIn(_aspectRatioLabelContainer, 300);
 		
 		_hideAspectRatioLabelTimer.start();
 	}
@@ -498,8 +509,10 @@ class Controls extends MovieClip {
 	 * @param	event
 	 */
 	private function onPlayerMediaInitialized(event:PlayerEvents):Void
-	{
+	{	
 		_totalPlayTimeLabel.text = Utils.formatTime(event.duration);
+		_totalPlayTimeLabel.setTextFormat(_textFormat);
+		
 		_playControl.visible = !_player.isPlaying();
 		_pauseControl.visible = _player.isPlaying();
 	}
@@ -552,6 +565,7 @@ class Controls extends MovieClip {
 	{
 		var clickPosition:Float = _track.mouseX;
 		_seekPlayTimeLabel.text = Utils.formatTime(_player.getDuration() * (clickPosition / _track.width));
+		_seekPlayTimeLabel.setTextFormat(_textFormat);
 		
 		_seekPlayTimeLabel.y = _stage.stageHeight - _seekBar.height - _seekPlayTimeLabel.height - 1;
 		_seekPlayTimeLabel.x = clickPosition + (_seekPlayTimeLabel.width / 2);
@@ -683,15 +697,19 @@ class Controls extends MovieClip {
 		_seekBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
 		_seekBar.graphics.drawRect(0, 0, _seekBarWidth, _seekBarHeight);
 		_seekBar.graphics.endFill();
+
+		_textFormat.color = _controlColor;
 		
 		//Draw current play time label
-		_currentPlayTimeLabel.textColor = _controlColor;
-		_currentPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight/2)-(_currentPlayTimeLabel.height/2);
+		_currentPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight / 2) - (_currentPlayTimeLabel.height / 2);
+		_currentPlayTimeLabel.antiAliasType = AntiAliasType.ADVANCED;
+		_currentPlayTimeLabel.setTextFormat(_textFormat);
 		
 		//Draw total play time label
-		_totalPlayTimeLabel.textColor = _controlColor;
 		_totalPlayTimeLabel.x = _seekBarWidth - _totalPlayTimeLabel.width;
 		_totalPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight / 2) - (_totalPlayTimeLabel.height / 2);
+		_totalPlayTimeLabel.antiAliasType = AntiAliasType.ADVANCED;
+		_totalPlayTimeLabel.setTextFormat(_textFormat);
 		
 		//Draw download progress
 		drawDownloadProgress();
@@ -807,7 +825,6 @@ class Controls extends MovieClip {
 		_aspectRatioLabel.setTextFormat(textFormat);
 		_aspectRatioLabel.x = (_stage.stageWidth / 2) - (_aspectRatioLabel.width / 2);
 		_aspectRatioLabel.y = (_stage.stageHeight / 2) - (_aspectRatioLabel.height / 2);
-		_aspectRatioLabel.antiAliasType = AntiAliasType.NORMAL;
 		
 		//Draw aspect ratio label container
 		_aspectRatioLabelContainer.x = _aspectRatioLabel.x - 10;
@@ -887,6 +904,8 @@ class Controls extends MovieClip {
 		{
 			_totalPlayTimeLabel.text = Std.string(Utils.formatTime(Std.parseFloat(duration)));
 		}
+		
+		_totalPlayTimeLabel.setTextFormat(_textFormat);
 	}
 	//}
 	
