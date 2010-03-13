@@ -52,7 +52,6 @@ import flash.system.Security;
 import flash.ui.Keyboard;
 import flash.ui.Mouse;
 import flash.utils.Timer;
-import jaris.display.Poster;
 import jaris.events.PlayerEvents;
 import jaris.utils.Utils;
 
@@ -97,7 +96,6 @@ class Player extends EventDispatcher
 	private var _firstLoad:Bool;
 	private var _stopped:Bool;
 	private var _useHardWareScaling:Bool;
-	private var _poster:Poster;
 	private var _youtubeLoader:Loader;
 	//}
 	
@@ -246,7 +244,7 @@ class Player extends EventDispatcher
 					_stream.bufferTime = 10;
 					_stream.play(Utils.rtmpSourceParser(_mediaSource), true);
 					_stream.client = this;
-					_video.attachNetStream(_stream);
+					if(_type == InputType.VIDEO) {_video.attachNetStream(_stream); }
 				}
 				callEvents(PlayerEvents.CONNECTION_SUCCESS);
 
@@ -341,7 +339,6 @@ class Player extends EventDispatcher
 				
 			case X_KEY:
 				stopAndClose();
-				callEvents(PlayerEvents.STOP_CLOSE);
 		}
 	}
 	
@@ -425,11 +422,6 @@ class Player extends EventDispatcher
 		{
 			_isPlaying = true;
 			
-			if (_poster != null)
-			{
-				_poster.visible = false;
-			}
-			
 			_firstLoad = false;
 			if (data.width)
 			{
@@ -512,12 +504,6 @@ class Player extends EventDispatcher
 			_checkAudioTimer.start();
 
 			_isPlaying = true;
-			
-			if (_poster != null)
-			{
-				_videoWidth = _poster.width;
-				_videoHeight = _poster.height;
-			}
 			
 			_firstLoad = false;
 			
@@ -616,11 +602,6 @@ class Player extends EventDispatcher
 					_videoHeight = _stage.stageHeight;
 				
 					_firstLoad = false;
-					
-					if (_poster != null)
-					{
-						_poster.visible = false;
-					}
 					
 					_mediaLoaded = true;
 					_mediaDuration = Reflect.field(_youtubeLoader.content, "getDuration")();
@@ -870,7 +851,6 @@ class Player extends EventDispatcher
 			_isPlaying = false;
 			_stopped = true;
 			_startTime = 0;
-			_poster.visible = true;
 			
 			if (_streamType == StreamType.YOUTUBE)
 			{
@@ -886,6 +866,8 @@ class Player extends EventDispatcher
 				_sound.close();
 			}
 		}
+		
+		callEvents(PlayerEvents.STOP_CLOSE);
 	}
 	
 	/**
@@ -1383,15 +1365,6 @@ class Player extends EventDispatcher
 	public function setServer(server:String):Void
 	{
 		_server = server;
-	}
-	 
-	/**
-	 * To set a reference to a poster image that should be disabled when media is loaded and ready to play
-	 * @param	poster
-	 */
-	public function setPoster(poster:Poster)
-	{
-		_poster = poster;
 	}
 	
 	/**

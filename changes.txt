@@ -2,6 +2,8 @@
 
 	* Added: display current aspect ratio label on aspect ratio toggle
 	* Improved readability of text
+	* only attach netstream to video object if input type is video
+	* remove poster from player code
 
 Jaris FLV Player v2.0.5 beta - 03/12/2010
 

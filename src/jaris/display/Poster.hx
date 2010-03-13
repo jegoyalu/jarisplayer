@@ -31,6 +31,9 @@ import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.Lib;
 import flash.net.URLRequest;
+import jaris.events.PlayerEvents;
+import jaris.player.InputType;
+import jaris.player.Player;
 
 /**
  * To display an png, jpg or gif as preview of video content
@@ -46,6 +49,7 @@ class Poster extends Sprite
 	private var _height:Float;
 	private var _loading:Bool;
 	private var _loaderStatus:jaris.display.Loader;
+	private var _player:Player;
 	
 	public function new(source:String)
 	{
@@ -114,6 +118,14 @@ class Poster extends Sprite
 		resizeImage();
 	}
 	
+	private function onPlayerMediaInitialized(event:PlayerEvents)
+	{
+		if (_player.getType() == InputType.VIDEO)
+		{
+			this.visible = false;
+		}
+	}
+	
 	/**
 	 * Resizes the poster image to take all the stage
 	 */
@@ -132,6 +144,12 @@ class Poster extends Sprite
 	public function isLoading():Bool
 	{
 		return _loading;
+	}
+	
+	public function setPlayer(player:Player):Void
+	{
+		_player = player;
+		_player.addEventListener(PlayerEvents.MEDIA_INITIALIZED, onPlayerMediaInitialized);
 	}
 	
 }

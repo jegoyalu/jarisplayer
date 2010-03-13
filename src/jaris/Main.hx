@@ -57,11 +57,6 @@ class Main
 		//Reads flash vars
 		var parameters:Dynamic<String> = flash.Lib.current.loaderInfo.parameters;
 		
-		//Draw preview image
-		var poster:String = parameters.poster != null ? parameters.poster : "";
-		var posterImage = new Poster(poster);
-		movieClip.addChild(posterImage);
-		
 		//Initialize and draw player object
 		var player:Player = new Player();
 		if (Capabilities.playerType == "PlugIn" || Capabilities.playerType == "ActiveX")
@@ -84,7 +79,6 @@ class Main
 				player.setSource(parameters.source);
 			}
 			
-			player.setPoster(posterImage);
 			player.setHardwareScaling(parameters.hardwarescaling=="true"?true:false);
 		}
 		else
@@ -93,6 +87,12 @@ class Main
 			player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
 			//player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
 		}
+		
+		//Draw preview image
+		var poster:String = parameters.poster != null ? parameters.poster : "";
+		var posterImage = new Poster(poster);
+		posterImage.setPlayer(player);
+		movieClip.addChild(posterImage);
 		
 		//Modify Context Menu
 		var menu:Menu = new Menu(player);
