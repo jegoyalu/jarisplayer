@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.6 beta - 03/13/2010
+﻿Jaris FLV Player v2.0.7 beta - 03/19/2010
+
+	* Fixed youtube security bug
+
+Jaris FLV Player v2.0.6 beta - 03/13/2010
 
 	* Added: display current aspect ratio label on aspect ratio toggle
 	* Improved readability of text

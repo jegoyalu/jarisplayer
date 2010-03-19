@@ -811,7 +811,12 @@ class Player extends EventDispatcher
 		
 		if (_streamType == StreamType.YOUTUBE)
 		{
-			Security.allowDomain("www.youtube.com");
+			Security.allowDomain("*");
+			Security.allowDomain("www.youtube.com");  
+			Security.allowDomain("youtube.com");  
+			Security.allowDomain("s.ytimg.com");  
+			Security.allowDomain("i.ytimg.com"); 
+		
 			_youtubeLoader = new Loader();
 			_youtubeLoader.contentLoaderInfo.addEventListener(Event.INIT, onYouTubeLoaderInit);
 			_youtubeLoader.load(new URLRequest("http://www.youtube.com/apiplayer?version=3"));
@@ -1544,7 +1549,7 @@ class Player extends EventDispatcher
 		
 		if (_streamType == StreamType.YOUTUBE)
 		{
-			if(_youtubeLoader != null)
+			if(_youtubeLoader != null && _mediaLoaded)
 			bytesTotal = Reflect.field(_youtubeLoader.content, "getVideoBytesTotal")();
 		}
 		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
@@ -1569,7 +1574,7 @@ class Player extends EventDispatcher
 		
 		if (_streamType == StreamType.YOUTUBE)
 		{
-			if(_youtubeLoader != null)
+			if(_youtubeLoader != null && _mediaLoaded)
 			bytesLoaded = Reflect.field(_youtubeLoader.content, "getVideoBytesLoaded")();
 		}
 		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
