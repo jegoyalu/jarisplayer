@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.7 beta - 03/19/2010
+﻿Jaris FLV Player v2.0.8 beta - 14/05/2010
+
+	* Fixed bug on formatTime function calculating hours as minutes
+
+Jaris FLV Player v2.0.7 beta - 03/19/2010
 
 	* Fixed youtube security bug
 

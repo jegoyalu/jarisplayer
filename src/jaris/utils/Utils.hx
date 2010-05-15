@@ -54,11 +54,11 @@ class Utils
 		{
 			if (Math.floor((time / 60)) / 60 < 10)
 			{
-				hours = "0" + Math.floor(time / 60) + ":";
+				hours = "0" + Math.floor((time / 60) / 60) + ":";
 			}
 			else
 			{
-				hours = Math.floor(time / 60) + ":";
+				hours = Math.floor((time / 60) / 60) + ":";
 			}
 			
 			if (Math.floor((time / 60) % 60) < 10)
