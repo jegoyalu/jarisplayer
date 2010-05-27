@@ -126,13 +126,26 @@ class Poster extends Sprite
 		}
 	}
 	
+	private function onPlayerPlay(event:PlayerEvents)
+	{
+		if (_player.getType() == InputType.VIDEO)
+		{
+			this.visible = false;
+		}
+	}
+	
+	private function onPlayBackFinished(event:PlayerEvents)
+	{
+		this.visible = true;
+	}
+	
 	/**
 	 * Resizes the poster image to take all the stage
 	 */
 	private function resizeImage():Void
 	{
 		this.height = _stage.stageHeight;
-		this.width = ((_stage.stageWidth / _stage.stageHeight) * this.height);
+		this.width = ((_width / _height) * this.height);
 		
 		this.x = (_stage.stageWidth / 2) - (this.width / 2);
 	}
@@ -150,6 +163,8 @@ class Poster extends Sprite
 	{
 		_player = player;
 		_player.addEventListener(PlayerEvents.MEDIA_INITIALIZED, onPlayerMediaInitialized);
+		_player.addEventListener(PlayerEvents.PLAYBACK_FINISHED, onPlayBackFinished);
+		_player.addEventListener(PlayerEvents.PLAY_PAUSE, onPlayerPlay);
 	}
 	
 }

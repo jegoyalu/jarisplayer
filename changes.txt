@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.8 beta - 14/05/2010
+﻿Jaris FLV Player v2.0.9 beta - 26/05/2010
+
+	* Improved poster to keep aspect ratio and display back when playback finishes
+
+Jaris FLV Player v2.0.8 beta - 14/05/2010
 
 	* Fixed bug on formatTime function calculating hours as minutes
 
