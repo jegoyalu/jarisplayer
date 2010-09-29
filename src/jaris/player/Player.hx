@@ -54,6 +54,7 @@ import flash.ui.Mouse;
 import flash.utils.Timer;
 import jaris.events.PlayerEvents;
 import jaris.utils.Utils;
+import jaris.player.AspectRatio;
 
 /**
  * Jaris main video player
@@ -126,6 +127,7 @@ class Player extends EventDispatcher
 		_type = InputType.VIDEO;
 		_server = "";
 		_currentAspectRatio = "original";
+		_aspectRatio = 0;
 		//}
 		
 		//{Initialize sound object
@@ -452,8 +454,12 @@ class Player extends EventDispatcher
 			
 			_mediaLoaded = true;
 			_mediaDuration = data.duration;
-			_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
-			_originalAspectRatio = _aspectRatio;
+			_originalAspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
+			
+			if (_aspectRatio <= 0)
+			{
+				_aspectRatio = _originalAspectRatio;
+			}
 			
 			callEvents(PlayerEvents.MEDIA_INITIALIZED);
 			
@@ -1424,6 +1430,36 @@ class Player extends EventDispatcher
 	public function setAspectRatio(aspectRatio:Float):Void
 	{
 		_aspectRatio = aspectRatio;
+		
+		switch(_aspectRatio)
+		{
+			case 0.0:
+				_currentAspectRatio = "original";
+				
+			case AspectRatio._1_1:
+				_currentAspectRatio = "1:1";
+				
+			case AspectRatio._3_2:
+				_currentAspectRatio = "3:2";
+				
+			case AspectRatio._4_3:
+				_currentAspectRatio = "4:3";
+				
+			case AspectRatio._5_4:
+				_currentAspectRatio = "5:4";
+				
+			case AspectRatio._14_9:
+				_currentAspectRatio = "14:9";
+				
+			case AspectRatio._14_10:
+				_currentAspectRatio = "14:10";
+				
+			case AspectRatio._16_9:
+				_currentAspectRatio = "16:9";
+				
+			case AspectRatio._16_10:
+				_currentAspectRatio = "16:10";
+		}
 		
 		resizeAndCenterPlayer();
 	}

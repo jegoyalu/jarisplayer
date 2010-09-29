@@ -36,6 +36,7 @@ import jaris.player.controls.Controls;
 import jaris.player.InputType;
 import jaris.player.Player;
 import jaris.player.StreamType;
+import jaris.player.AspectRatio;
 
 /**
  * Main jaris player starting point
@@ -65,6 +66,30 @@ class Main
 			var type:String = parameters.type != "" && parameters.type != null? parameters.type : InputType.VIDEO;
 			var streamType:String = parameters.streamtype != "" && parameters.streamtype != null? parameters.streamtype : StreamType.FILE;
 			var server:String = parameters.server != "" && parameters.server != null? parameters.server : "";
+			var aspectRatio:String = parameters.aspectratio != "" && parameters.aspectratio != null? parameters.aspectratio : "";
+			
+			if (aspectRatio != "")
+			{
+				switch(aspectRatio)
+				{
+					case "1:1":
+						player.setAspectRatio(AspectRatio._1_1);
+					case "3:2":
+						player.setAspectRatio(AspectRatio._3_2);
+					case "4:3":
+						player.setAspectRatio(AspectRatio._4_3);
+					case "5:4":
+						player.setAspectRatio(AspectRatio._5_4);
+					case "14:9":
+						player.setAspectRatio(AspectRatio._14_9);
+					case "14:10":
+						player.setAspectRatio(AspectRatio._14_10);
+					case "16:9":
+						player.setAspectRatio(AspectRatio._16_9);
+					case "16:10":
+						player.setAspectRatio(AspectRatio._16_10);
+				}
+			}
 			
 			player.setType(type);
 			player.setStreamType(streamType);

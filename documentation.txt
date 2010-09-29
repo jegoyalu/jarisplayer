@@ -98,6 +98,9 @@ Here is the list of variables that you can pass to the player.
     
 	* hovercolor:
       On mouse hover color for controls in html hexadecimal format
+	  
+	* aspectratio:
+      To override original aspect ratio on first time player load. Allowable values: 1:1, 3:2, 4:3, 5:4, 14:9, 14:10, 16:9, 16:10
 
 ==================	  
 Keyboard Shortcuts

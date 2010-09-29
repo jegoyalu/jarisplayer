@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.9 beta - 26/05/2010
+﻿Jaris FLV Player v2.0.10 beta - 29/09/2010
+
+	* Added flashvar aspectratio option to initially tell on wich aspect ratio to play the video
+
+Jaris FLV Player v2.0.9 beta - 26/05/2010
 
 	* Improved poster to keep aspect ratio and display back when playback finishes
 
