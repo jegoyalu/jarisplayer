@@ -37,6 +37,7 @@ import jaris.player.InputType;
 import jaris.player.Player;
 import jaris.player.StreamType;
 import jaris.player.AspectRatio;
+import jaris.player.UserSettings;
 
 /**
  * Main jaris player starting point
@@ -55,6 +56,9 @@ class Main
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		stage.align = StageAlign.TOP_LEFT;
 		
+		//Retrieve user settings
+		var userSettings:UserSettings = new UserSettings();
+		
 		//Reads flash vars
 		var parameters:Dynamic<String> = flash.Lib.current.loaderInfo.parameters;
 		
@@ -68,7 +72,7 @@ class Main
 			var server:String = parameters.server != "" && parameters.server != null? parameters.server : "";
 			var aspectRatio:String = parameters.aspectratio != "" && parameters.aspectratio != null? parameters.aspectratio : "";
 			
-			if (aspectRatio != "")
+			if (aspectRatio != "" && !userSettings.isSet("aspectratio"))
 			{
 				switch(aspectRatio)
 				{
@@ -90,10 +94,15 @@ class Main
 						player.setAspectRatio(AspectRatio._16_10);
 				}
 			}
+			else if(userSettings.isSet("aspectratio"))
+			{
+				player.setAspectRatio(userSettings.getAspectRatio());
+			}
 			
 			player.setType(type);
 			player.setStreamType(streamType);
 			player.setServer(server);
+			player.setVolume(userSettings.getVolume());
 			
 			if (autoStart)
 			{
@@ -109,6 +118,13 @@ class Main
 		else
 		{
 			//For development purposes
+			if(userSettings.isSet("aspectratio"))
+			{
+				player.setAspectRatio(userSettings.getAspectRatio());
+			}
+			
+			player.setVolume(userSettings.getVolume());
+			
 			player.load("http://jaris.sourceforge.net/files/jaris-intro.flv", InputType.VIDEO, StreamType.FILE);
 			//player.load("http://jaris.sourceforge.net/files/audio.mp3", InputType.AUDIO, StreamType.FILE);
 		}

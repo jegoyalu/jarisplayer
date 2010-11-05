@@ -1,4 +1,10 @@
-﻿Jaris FLV Player v2.0.10 beta - 29/09/2010
+﻿Jaris FLV Player v2.0.11 beta - 03/10/2010
+
+	* Removed togglePlay of onFullscreen event since it seems that new flash versions doesnt emits 
+	  the space keydown anymore that affected playback on fullcreen switching.
+	* Added class to store user settings as volume and aspect ratio to load them next time player is load.
+	
+Jaris FLV Player v2.0.10 beta - 29/09/2010
 
 	* Added flashvar aspectratio option to initially tell on wich aspect ratio to play the video
 

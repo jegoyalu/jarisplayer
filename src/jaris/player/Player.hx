@@ -55,6 +55,7 @@ import flash.utils.Timer;
 import jaris.events.PlayerEvents;
 import jaris.utils.Utils;
 import jaris.player.AspectRatio;
+import jaris.player.UserSettings;
 
 /**
  * Jaris main video player
@@ -98,6 +99,7 @@ class Player extends EventDispatcher
 	private var _stopped:Bool;
 	private var _useHardWareScaling:Bool;
 	private var _youtubeLoader:Loader;
+	private var _userSettings:UserSettings;
 	//}
 	
 	
@@ -128,6 +130,7 @@ class Player extends EventDispatcher
 		_server = "";
 		_currentAspectRatio = "original";
 		_aspectRatio = 0;
+		_userSettings = new UserSettings();
 		//}
 		
 		//{Initialize sound object
@@ -391,12 +394,6 @@ class Player extends EventDispatcher
 		{
 			_mouseVisible = true;
 			_hideMouseTimer.start();
-			
-			//If browser player resume playing
-			if ((Capabilities.playerType == "ActiveX" || Capabilities.playerType == "PlugIn"))
-			{
-				togglePlay();
-			}
 		}
 		
 		resizeAndCenterPlayer();
@@ -464,6 +461,9 @@ class Player extends EventDispatcher
 			callEvents(PlayerEvents.MEDIA_INITIALIZED);
 			
 			resizeAndCenterPlayer();
+			
+			//Retrieve the volume that user selected last time
+			setVolume(_userSettings.getVolume());
 		}
 	}
 	
@@ -523,6 +523,9 @@ class Player extends EventDispatcher
 			callEvents(PlayerEvents.MEDIA_INITIALIZED);
 			
 			resizeAndCenterPlayer();
+			
+			//Retrieve the volume that user selected last time
+			setVolume(_userSettings.getVolume());
 		}
 	}
 	
@@ -619,6 +622,9 @@ class Player extends EventDispatcher
 					callEvents(PlayerEvents.MEDIA_INITIALIZED);
 					
 					resizeAndCenterPlayer();
+					
+					//Retrieve the volume that user selected last time
+					setVolume(_userSettings.getVolume());
 				}
 				callEvents(PlayerEvents.NOT_BUFFERING);
 				
@@ -934,6 +940,8 @@ class Player extends EventDispatcher
 				{
 					_soundChannel.stop();
 				}
+				
+				setVolume(_userSettings.getVolume());
 			}
 		}
 		else if(_seekPoints.length > 0 && _streamType == StreamType.PSEUDOSTREAM)
@@ -992,6 +1000,8 @@ class Player extends EventDispatcher
 				{
 					_soundChannel.stop();
 				}
+				
+				setVolume(_userSettings.getVolume());
 			}
 		}
 		
@@ -1060,6 +1070,16 @@ class Player extends EventDispatcher
 		
 		callEvents(PlayerEvents.ASPECT_RATIO);
 		
+		//Store aspect ratio into user settings
+		if (_aspectRatio == _originalAspectRatio)
+		{
+			_userSettings.setAspectRatio(0.0);
+		}
+		else
+		{
+			_userSettings.setAspectRatio(_aspectRatio);
+		}
+		
 		return _aspectRatio;
 	}
 	
@@ -1088,6 +1108,7 @@ class Player extends EventDispatcher
 				{
 					_checkAudioTimer.start();
 					_soundChannel = _sound.play();
+					setVolume(_userSettings.getVolume());
 				}
 			}
 			else if (_mediaLoaded)
@@ -1124,6 +1145,8 @@ class Player extends EventDispatcher
 						{
 							_soundChannel = _sound.play(_soundChannel.position);
 						}
+						
+						setVolume(_userSettings.getVolume());
 					}
 				}
 			}
@@ -1249,6 +1272,7 @@ class Player extends EventDispatcher
 		else if (_type == InputType.AUDIO)
 		{
 			_soundChannel.soundTransform = soundTransform;
+			setVolume(_userSettings.getVolume());
 		}
 		
 		
@@ -1305,6 +1329,9 @@ class Player extends EventDispatcher
 			_volume = 1.0;
 		}
 		
+		//Store volume into user settings
+		_userSettings.setVolume(_volume);
+		
 		return _volume;
 	}
 	
@@ -1344,6 +1371,9 @@ class Player extends EventDispatcher
 				_volume = 0;
 			}
 		}
+		
+		//Store volume into user settings
+		_userSettings.setVolume(_volume);
 		
 		return _volume;
 	}
@@ -1409,18 +1439,24 @@ class Player extends EventDispatcher
 		
 		soundTransform.volume = volume;
 		
-		if (_streamType == StreamType.YOUTUBE)
+		if (!_firstLoad) //To prevent errors if objects aren't initialized
 		{
-			Reflect.field(_youtubeLoader.content, "setVolume")(soundTransform.volume * 100);
+			if (_streamType == StreamType.YOUTUBE)
+			{
+				Reflect.field(_youtubeLoader.content, "setVolume")(soundTransform.volume * 100);
+			}
+			else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
+			{
+				_stream.soundTransform = soundTransform;
+			}
+			else if (_type == InputType.AUDIO)
+			{
+				_soundChannel.soundTransform = soundTransform;
+			}
 		}
-		else if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
-		{
-			_stream.soundTransform = soundTransform;
-		}
-		else if (_type == InputType.AUDIO)
-		{
-			_soundChannel.soundTransform = soundTransform;
-		}
+		
+		//Store volume into user settings
+		_userSettings.setVolume(_volume);
 	}
 	
 	/**
@@ -1462,6 +1498,9 @@ class Player extends EventDispatcher
 		}
 		
 		resizeAndCenterPlayer();
+		
+		//Store aspect ratio into user settings
+		_userSettings.setAspectRatio(_aspectRatio);
 	}
 	
 	/**
