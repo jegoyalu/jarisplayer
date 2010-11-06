@@ -86,6 +86,9 @@ Here is the list of variables that you can pass to the player.
     
 	* logoalpha:
       The transparency percent. values permitted 1 to 100
+	  
+	* controls:
+	  To disable the displaying of controls, values: false to hide otherwise defaults to show
     
 	* darkcolor:
       The darker color of player controls in html hexadecimal format
@@ -101,6 +104,9 @@ Here is the list of variables that you can pass to the player.
 	  
 	* aspectratio:
       To override original aspect ratio on first time player load. Allowable values: 1:1, 3:2, 4:3, 5:4, 14:9, 14:10, 16:9, 16:10
+	  
+	* jsapi:
+	  Expose events to javascript functions and enable controlling the player from the outside. Set to any value to enable.
 
 ==================	  
 Keyboard Shortcuts

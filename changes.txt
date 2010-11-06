@@ -1,4 +1,10 @@
-﻿Jaris FLV Player v2.0.11 beta - 03/10/2010
+﻿Jaris FLV Player v2.0.12 beta - 06/11/2010
+
+	* Java Script Api to listen for events and control the player.
+	* More player events added to use on JSApi.
+	* All this changes thanks to Sascha Kluger from http://projekktor.com
+	
+Jaris FLV Player v2.0.11 beta - 03/10/2010
 
 	* Removed togglePlay of onFullscreen event since it seems that new flash versions doesnt emits 
 	  the space keydown anymore that affected playback on fullcreen switching.

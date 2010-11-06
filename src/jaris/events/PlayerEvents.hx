@@ -38,10 +38,14 @@ class PlayerEvents extends Event
 	public static var FULLSCREEN = "onFullscreen";
 	public static var VOLUME_UP = "onVolumeUp";
 	public static var VOLUME_DOWN = "onVolumeDown";
+	public static var VOLUME_CHANGE= "onVolumeChange"; //Nuevo
 	public static var MUTE = "onMute";
 	public static var FORWARD = "onForward";
 	public static var REWIND = "onRewind";
 	public static var PLAY_PAUSE = "onPlayPause";
+	public static var SEEK = "onSeek";
+	public static var TIME = "onTimeUpdate";	
+	public static var PROGRESS = "onProgress";
 	public static var BUFFERING = "onBuffering";
 	public static var NOT_BUFFERING = "onNotBuffering";
 	public static var CONNECTION_FAILED = "onConnectionFailed";
@@ -51,6 +55,7 @@ class PlayerEvents extends Event
 	public static var STOP_CLOSE = "onStopAndClose";
 	public static var RESIZE = "onResize";
 	
+	public var name:String;
 	public var aspectRatio:Float;
 	public var duration:Float;
 	public var fullscreen:Bool;
@@ -74,5 +79,6 @@ class PlayerEvents extends Event
 		width = 0;
 		height = 0;
 		time = 0;
+		name = type;
 	}
 }

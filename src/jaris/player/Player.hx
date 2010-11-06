@@ -87,6 +87,8 @@ class Player extends EventDispatcher
 	private var _videoMask:Sprite;
 	private var _videoQualityHigh:Bool;
 	private var _mediaDuration:Float;
+	private var _lastTime:Float;	
+	private var _lastProgress:Float;
 	private var _isPlaying:Bool;
 	private var _aspectRatio:Float;
 	private var _currentAspectRatio:String;
@@ -130,6 +132,8 @@ class Player extends EventDispatcher
 		_server = "";
 		_currentAspectRatio = "original";
 		_aspectRatio = 0;
+		_lastTime = 0;
+		_lastProgress = 0;
 		_userSettings = new UserSettings();
 		//}
 		
@@ -161,6 +165,7 @@ class Player extends EventDispatcher
 		toggleQuality();
 		
 		//{Initialize system event listeners
+		_movieClip.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		_stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 		_stage.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
 		_stage.addEventListener(FullScreenEvent.FULL_SCREEN, onFullScreen);
@@ -320,27 +325,21 @@ class Player extends EventDispatcher
 				
 			case M_KEY:
 				toggleMute();
-				callEvents(PlayerEvents.MUTE);
 				
 			case Keyboard.UP:
 				volumeUp();
-				callEvents(PlayerEvents.VOLUME_UP);
 				
 			case Keyboard.DOWN:
 				volumeDown();
-				callEvents(PlayerEvents.VOLUME_DOWN);
 				
 			case Keyboard.RIGHT:
 				forward();
-				callEvents(PlayerEvents.FORWARD);
 				
 			case Keyboard.LEFT:
 				rewind();
-				callEvents(PlayerEvents.REWIND);
 				
 			case Keyboard.SPACE:
 				togglePlay();
-				callEvents(PlayerEvents.PLAY_PAUSE);
 				
 			case X_KEY:
 				stopAndClose();
@@ -475,6 +474,26 @@ class Player extends EventDispatcher
 	{
 		trace("last second pseudostream");
 	}
+	
+	/**
+	 * Broadcast Timeupdate and Duration	 
+	 */	
+	private function onEnterFrame(event:Event):Void
+	{
+		if (getDuration() > 0 && _lastTime != getCurrentTime()) 
+		{
+			_lastTime = getCurrentTime();
+			callEvents(PlayerEvents.TIME);
+		}
+		
+		if (getBytesLoaded() > 0 && _lastProgress < getBytesLoaded()) 
+		{
+			_lastProgress = getBytesLoaded();
+			callEvents(PlayerEvents.PROGRESS);
+		}
+		
+	}		
+	
 	
 	/**
 	 * Triggers when playbacks end on rtmp streaming server
@@ -946,7 +965,7 @@ class Player extends EventDispatcher
 		}
 		else if(_seekPoints.length > 0 && _streamType == StreamType.PSEUDOSTREAM)
 		{
-			//seekTime = getBestSeekPoint(seekTime);
+			seekTime = getBestSeekPoint(seekTime);
 			
 			if (canSeek(seekTime))
 			{
@@ -983,13 +1002,13 @@ class Player extends EventDispatcher
 		}
 		else if (_streamType == StreamType.RTMP)
 		{
+			// seekTime = getBestSeekPoint(seekTime); //Not Needed?
 			_stream.seek(seekTime);
 		}
 		else if(canSeek(seekTime))
 		{
 			if (_type == InputType.VIDEO || _streamType == StreamType.RTMP)
 			{
-				seekTime = getBestSeekPoint(seekTime);
 				_stream.seek(seekTime);
 			}
 			else if (_type == InputType.AUDIO)
@@ -1004,7 +1023,7 @@ class Player extends EventDispatcher
 				setVolume(_userSettings.getVolume());
 			}
 		}
-		
+		callEvents(PlayerEvents.SEEK);
 		return seekTime;
 	}
 	
@@ -1156,16 +1175,16 @@ class Player extends EventDispatcher
 			}
 			
 			_isPlaying = !_isPlaying;
-			
+			callEvents(PlayerEvents.PLAY_PAUSE);
 			return _isPlaying;
 		}
 		else if(_mediaSource != "")
 		{
 			load(_mediaSource, _type, _streamType, _server);
-			
+			callEvents(PlayerEvents.BUFFERING);
 			return true;
 		}
-		
+		callEvents(PlayerEvents.PLAY_PAUSE);
 		return false;
 	}
 	
@@ -1275,7 +1294,7 @@ class Player extends EventDispatcher
 			setVolume(_userSettings.getVolume());
 		}
 		
-		
+		callEvents(PlayerEvents.MUTE);
 		return isMute;
 	}
 	
@@ -1332,6 +1351,7 @@ class Player extends EventDispatcher
 		//Store volume into user settings
 		_userSettings.setVolume(_volume);
 		
+		callEvents(PlayerEvents.VOLUME_UP);
 		return _volume;
 	}
 	
@@ -1375,6 +1395,7 @@ class Player extends EventDispatcher
 		//Store volume into user settings
 		_userSettings.setVolume(_volume);
 		
+		callEvents(PlayerEvents.VOLUME_DOWN);
 		return _volume;
 	}
 	//}
@@ -1426,6 +1447,14 @@ class Player extends EventDispatcher
 	{
 		var soundTransform:SoundTransform = new SoundTransform();
 		
+		if (volume > _volume) {
+			callEvents(PlayerEvents.VOLUME_UP);
+		}
+
+		if (volume < _volume) {
+			callEvents(PlayerEvents.VOLUME_DOWN);
+		}
+
 		if (volume > 0)
 		{
 			_soundMuted = false;
@@ -1457,6 +1486,8 @@ class Player extends EventDispatcher
 		
 		//Store volume into user settings
 		_userSettings.setVolume(_volume);
+
+		callEvents(PlayerEvents.VOLUME_CHANGE);
 	}
 	
 	/**

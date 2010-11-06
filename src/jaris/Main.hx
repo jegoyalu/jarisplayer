@@ -33,6 +33,7 @@ import jaris.display.Logo;
 import jaris.display.Menu;
 import jaris.display.Poster;
 import jaris.player.controls.Controls;
+import jaris.player.JsApi;
 import jaris.player.InputType;
 import jaris.player.Player;
 import jaris.player.StreamType;
@@ -130,39 +131,53 @@ class Main
 		}
 		
 		//Draw preview image
-		var poster:String = parameters.poster != null ? parameters.poster : "";
-		var posterImage = new Poster(poster);
-		posterImage.setPlayer(player);
-		movieClip.addChild(posterImage);
+		if (parameters.poster != null)
+		{
+			var poster:String = parameters.poster;
+			var posterImage = new Poster(poster);
+			posterImage.setPlayer(player);
+			movieClip.addChild(posterImage);
+		}
 		
 		//Modify Context Menu
 		var menu:Menu = new Menu(player);
 		
 		//Draw logo
-		var logoSource:String = parameters.logo != null ? parameters.logo : "logo.png";
-		var logoPosition:String = parameters.logoposition != null ? parameters.logoposition : "top left";
-		var logoAlpha:Float = parameters.logoalpha != null ? Std.parseFloat(parameters.logoalpha) / 100 : 0.3;
-		var logoWidth:Float = parameters.logowidth != null ? Std.parseFloat(parameters.logowidth) : 130;
-		var logoLink:String = parameters.logolink != null ? parameters.logolink : "http://jaris.sourceforge.net";
-		
-		var logo:Logo = new Logo(logoSource, logoPosition, logoAlpha, logoWidth);
-		logo.setLink(logoLink);
-		movieClip.addChild(logo);
-		
-		
+		if (parameters.logo!=null)
+		{
+			var logoSource:String = parameters.logo != null ? parameters.logo : "logo.png";
+			var logoPosition:String = parameters.logoposition != null ? parameters.logoposition : "top left";
+			var logoAlpha:Float = parameters.logoalpha != null ? Std.parseFloat(parameters.logoalpha) / 100 : 0.3;
+			var logoWidth:Float = parameters.logowidth != null ? Std.parseFloat(parameters.logowidth) : 130;
+			var logoLink:String = parameters.logolink != null ? parameters.logolink : "http://jaris.sourceforge.net";
+			
+			var logo:Logo = new Logo(logoSource, logoPosition, logoAlpha, logoWidth);
+			logo.setLink(logoLink);
+			movieClip.addChild(logo);
+		}
+	
 		//Draw Controls
-		var duration:String = parameters.duration != "" && parameters.duration != null? parameters.duration : "0";
-		var controls:Controls = new Controls(player);
-		
-		var controlColors:Array <String> = ["", "", "", ""];
-		controlColors[0] = parameters.darkcolor != null ? parameters.darkcolor : "";
-		controlColors[1] = parameters.brightcolor != null ? parameters.brightcolor : "";
-		controlColors[2] = parameters.controlcolor != null ? parameters.controlcolor : "";
-		controlColors[3] = parameters.hovercolor != null ? parameters.hovercolor : "";
-		
-		controls.setDurationLabel(duration);
-		controls.setControlColors(controlColors);
-		
-		movieClip.addChild(controls);
+		if (parameters.controls!="false")
+		{
+			var duration:String = parameters.duration != "" && parameters.duration != null? parameters.duration : "0";
+			var controls:Controls = new Controls(player);
+			
+			var controlColors:Array <String> = ["", "", "", ""];
+			controlColors[0] = parameters.darkcolor != null ? parameters.darkcolor : "";
+			controlColors[1] = parameters.brightcolor != null ? parameters.brightcolor : "";
+			controlColors[2] = parameters.controlcolor != null ? parameters.controlcolor : "";
+			controlColors[3] = parameters.hovercolor != null ? parameters.hovercolor : "";
+			
+			controls.setDurationLabel(duration);
+			controls.setControlColors(controlColors);
+			movieClip.addChild(controls);
+		}
+
+		//Expose events to javascript functions and enable controlling the player from the outside
+		if (parameters.jsapi != null)
+		{
+			var jsAPI:JsApi = new JsApi(player);
+			movieClip.addChild(jsAPI);
+		}
 	}
 }
