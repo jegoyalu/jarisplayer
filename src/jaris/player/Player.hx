@@ -969,7 +969,7 @@ class Player extends EventDispatcher
 			
 			if (canSeek(seekTime))
 			{
-				_stream.seek(seekTime);
+				_stream.seek(seekTime - _startTime);
 			}
 			else if(seekTime != _startTime)
 			{	

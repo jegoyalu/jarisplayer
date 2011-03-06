@@ -20,16 +20,31 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package jaris;
+package jaris.player;
+
+//{Libraries
+import jaris.events.PlayerEvents;
+//}
 
 /**
- * Actual jaris flv player version and date
+ * Implements a loop mechanism on the player
  */
-class Version 
+class Loop 
 {
-	public static var NUMBER:String = "2.0.13";
-	public static var STATUS:String = "beta";
-	public static var DATE:String = "27";
-	public static var MONTH:String = "01";
-	public static var YEAR:String = "2011";
+	private var _player:Player;
+	
+	public function new(player:Player) 
+	{
+		_player = player;
+		_player.addEventListener(PlayerEvents.PLAYBACK_FINISHED, onPlayerStop);
+	}
+	
+	/**
+	 * Everytime the player stops, the playback is restarted
+	 * @param	event
+	 */
+	private function onPlayerStop(event:PlayerEvents):Void
+	{
+		_player.togglePlay();
+	}
 }

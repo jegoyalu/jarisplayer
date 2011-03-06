@@ -107,6 +107,9 @@ Here is the list of variables that you can pass to the player.
 	  
 	* jsapi:
 	  Expose events to javascript functions and enable controlling the player from the outside. Set to any value to enable.
+	  
+	* loop:
+	  As the variable says this keeps looping the video. Set to any value to enable.
 
 ==================	  
 Keyboard Shortcuts

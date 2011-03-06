@@ -1,4 +1,10 @@
-﻿Jaris FLV Player v2.0.12 beta - 06/11/2010
+﻿Jaris FLV Player v2.0.13 beta - 6/03/2011
+
+	* Implemented loop class
+	* Added loop functionality by passing loop=true or loop=1 as parameter
+	* Fixed reported bug "slider will show wrong position" on pseudostreaming seek (Thanks to Adam)
+	
+Jaris FLV Player v2.0.12 beta - 06/11/2010
 
 	* Java Script Api to listen for events and control the player.
 	* More player events added to use on JSApi.

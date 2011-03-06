@@ -39,6 +39,7 @@ import jaris.player.Player;
 import jaris.player.StreamType;
 import jaris.player.AspectRatio;
 import jaris.player.UserSettings;
+import jaris.player.Loop;
 
 /**
  * Main jaris player starting point
@@ -157,7 +158,7 @@ class Main
 		}
 	
 		//Draw Controls
-		if (parameters.controls!="false")
+		if (parameters.controls != "false")
 		{
 			var duration:String = parameters.duration != "" && parameters.duration != null? parameters.duration : "0";
 			var controls:Controls = new Controls(player);
@@ -171,6 +172,12 @@ class Main
 			controls.setDurationLabel(duration);
 			controls.setControlColors(controlColors);
 			movieClip.addChild(controls);
+		}
+		
+		//Loop the video
+		if (parameters.loop != null)
+		{
+			var loop:Loop = new Loop(player);
 		}
 
 		//Expose events to javascript functions and enable controlling the player from the outside
