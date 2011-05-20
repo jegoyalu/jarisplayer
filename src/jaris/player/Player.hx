@@ -633,7 +633,6 @@ class Player extends EventDispatcher
 					
 					_mediaLoaded = true;
 					_mediaDuration = Reflect.field(_youtubeLoader.content, "getDuration")();
-					trace(_mediaDuration);
 					_aspectRatio = AspectRatio.getAspectRatio(_videoWidth, _videoHeight);
 					_originalAspectRatio = _aspectRatio;
 					
@@ -672,7 +671,7 @@ class Player extends EventDispatcher
 	 */
 	private function onYoutubePlaybackQualityChange(event:Event):Void
 	{
-		trace(Reflect.field(event, "data"));
+		//trace(Reflect.field(event, "data"));
 	}
    
 	/**

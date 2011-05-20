@@ -1,4 +1,8 @@
-﻿Jaris FLV Player v2.0.13 beta - 6/03/2011
+﻿﻿Jaris FLV Player v2.0.14 beta - 20/05/2011
+
+	* Removed some trace calls on youtube playback.
+
+Jaris FLV Player v2.0.13 beta - 6/03/2011
 
 	* Implemented loop class
 	* Added loop functionality by passing loop=true or loop=1 as parameter
