@@ -20,7 +20,7 @@
  * see <http://www.gnu.org/licenses/>.
  */
 
-package jaris.player.controls;
+package jaris.player.newcontrols;
 
 //{Libraries
 import flash.display.GradientType;
@@ -38,13 +38,13 @@ import flash.text.TextFieldAutoSize;
 import flash.text.TextFormat;
 import flash.utils.Timer;
 import jaris.animation.Animation;
-import jaris.display.Loader;
 import jaris.events.PlayerEvents;
-import jaris.player.controls.AspectRatioIcon;
-import jaris.player.controls.FullscreenIcon;
-import jaris.player.controls.PauseIcon;
-import jaris.player.controls.PlayIcon;
-import jaris.player.controls.VolumeIcon;
+import jaris.player.newcontrols.Loader;
+import jaris.player.newcontrols.AspectRatioIcon;
+import jaris.player.newcontrols.FullscreenIcon;
+import jaris.player.newcontrols.PauseIcon;
+import jaris.player.newcontrols.PlayIcon;
+import jaris.player.newcontrols.VolumeIcon;
 import jaris.player.Player;
 import flash.display.Sprite;
 import flash.display.Stage;
@@ -54,7 +54,7 @@ import jaris.utils.Utils;
 /**
  * Default controls for jaris player
  */
-class Controls extends MovieClip {
+class NewControls extends MovieClip {
 	
 	//{Member Variables
 	private var _thumb:Sprite;
@@ -66,7 +66,9 @@ class Controls extends MovieClip {
 	private var _player:Player;
 	private var _darkColor:UInt;
 	private var _brightColor:UInt;
+	private var _seekColor:UInt;
 	private var _controlColor:UInt;
+	private var _controlSize:Int;
 	private var _hoverColor:UInt;
 	private var _hideControlsTimer:Timer;
 	private var _hideAspectRatioLabelTimer:Timer;
@@ -104,6 +106,8 @@ class Controls extends MovieClip {
 		_brightColor = 0x4c4c4c;
 		_controlColor = 0xFFFFFF;
 		_hoverColor = 0x67A8C1;
+		_seekColor = 0x7c7c7c;
+		_controlSize = 40;
 		_percentLoaded = 0.0;
 		_hideControlsTimer = new Timer(500);
 		_hideAspectRatioLabelTimer = new Timer(500);
@@ -115,9 +119,42 @@ class Controls extends MovieClip {
 		_textFormat.size = 14;
 		//}
 		
+		//{Playing controls initialization
+		_controlsBar = new Sprite();
+		_controlsBar.visible = true;
+		addChild(_controlsBar);
+		
+		_playControl = new PlayIcon(0, 0, 0, 0, _controlColor, _hoverColor);
+		_controlsBar.addChild(_playControl);
+		
+		_pauseControl = new PauseIcon(0, 0, 0, 0, _controlColor, _hoverColor);
+		_pauseControl.visible = false;
+		_controlsBar.addChild(_pauseControl);
+		
+		_aspectRatioControl = new AspectRatioIcon(0, 0, 0, 0, _controlColor, _hoverColor);
+		_controlsBar.addChild(_aspectRatioControl);
+		
+		_fullscreenControl = new FullscreenIcon(0, 0, 0, 0, _controlColor, _hoverColor);
+		_controlsBar.addChild(_fullscreenControl);
+		
+		_volumeIcon = new VolumeIcon(0, 0, 0, 0, _controlColor, _hoverColor);
+		_controlsBar.addChild(_volumeIcon);
+		
+		_volumeSlider = new Sprite();
+		_volumeSlider.visible = false;
+		_controlsBar.addChild(_volumeSlider);
+		
+		_volumeTrack = new Sprite();
+		_volumeTrack.visible = false;
+		_volumeTrack.buttonMode = true;
+		_volumeTrack.useHandCursor = true;
+		_volumeTrack.tabEnabled = false;
+		_controlsBar.addChild(_volumeTrack); 
+		//}
+		
 		//{Seeking Controls initialization
 		_seekBar = new Sprite();
-		addChild(_seekBar);
+		_controlsBar.addChild(_seekBar);
 		
 		_trackDownloaded = new Sprite(  );
 		_trackDownloaded.tabEnabled = false;
@@ -128,7 +165,6 @@ class Controls extends MovieClip {
 		_track.buttonMode = true;
 		_track.useHandCursor = true;
 		_seekBar.addChild(_track);
-		
 		
 		_thumb = new Sprite(  );
 		_thumb.buttonMode = true;
@@ -159,37 +195,6 @@ class Controls extends MovieClip {
 		addChild(_seekPlayTimeLabel);
 		//}
 		
-		//{Playing controls initialization
-		_controlsBar = new Sprite();
-		_controlsBar.visible = true;
-		addChild(_controlsBar);
-		
-		_playControl = new PlayIcon(0, 0, 0, 0, _controlColor, _hoverColor);
-		_controlsBar.addChild(_playControl);
-		
-		_pauseControl = new PauseIcon(0, 0, 0, 0, _controlColor, _hoverColor);
-		_pauseControl.visible = false;
-		_controlsBar.addChild(_pauseControl);
-		
-		_aspectRatioControl = new AspectRatioIcon(0, 0, 0, 0, _controlColor, _hoverColor);
-		_controlsBar.addChild(_aspectRatioControl);
-		
-		_fullscreenControl = new FullscreenIcon(0, 0, 0, 0, _controlColor, _hoverColor);
-		_controlsBar.addChild(_fullscreenControl);
-		
-		_volumeIcon = new VolumeIcon(0, 0, 0, 0, _controlColor, _hoverColor);
-		_controlsBar.addChild(_volumeIcon);
-		
-		_volumeSlider = new Sprite();
-		_controlsBar.addChild(_volumeSlider);
-		
-		_volumeTrack = new Sprite();
-		_volumeTrack.buttonMode = true;
-		_volumeTrack.useHandCursor = true;
-		_volumeTrack.tabEnabled = false;
-		_controlsBar.addChild(_volumeTrack); 
-		//}
-		
 		//{Aspect ratio label
 		_aspectRatioLabelContainer = new Sprite();
 		addChild(_aspectRatioLabelContainer);
@@ -208,8 +213,9 @@ class Controls extends MovieClip {
 		_loader.hide();
 		
 		var loaderColors:Array <String> = ["", "", "", ""];
-		loaderColors[0] = Std.string(_brightColor);
+		loaderColors[0] = Std.string(_darkColor);
 		loaderColors[1] = Std.string(_controlColor);
+		loaderColors[2] = Std.string(_seekColor);
 		
 		_loader.setColors(loaderColors);
 		
@@ -402,7 +408,13 @@ class Controls extends MovieClip {
 	 */
 	private function onVolumeIconClick(event: MouseEvent):Void
 	{
-		_player.toggleMute();
+		if (_volumeSlider.visible) {
+			_volumeSlider.visible = false;
+			_volumeTrack.visible = false;
+		} else {
+			_volumeSlider.visible = true;
+			_volumeTrack.visible = true;
+		}
 	}
 	
 	/**
@@ -459,7 +471,7 @@ class Controls extends MovieClip {
 			//wait till fade out finishes
 		}
 		
-		Animation.fadeIn(_aspectRatioLabelContainer, 300);
+		Animation.fadeIn(_aspectRatioLabelContainer, 1);
 		
 		_hideAspectRatioLabelTimer.start();
 	}
@@ -491,16 +503,6 @@ class Controls extends MovieClip {
 	 */
 	private function onPlayerResize(event:PlayerEvents):Void
 	{
-		if (!_player.isFullscreen())
-		{
-			if (_player.getVideo().y + _player.getVideo().height >= _stage.stageHeight)
-			{
-				_player.getVideo().height = _stage.stageHeight - _seekBar.height;
-				_player.getVideo().width = _player.getVideo().height * _player.getAspectRatio();
-				
-				_player.getVideo().x = (_stage.stageWidth / 2) - (_player.getVideo().width / 2);
-			}
-		}
 	}
 	
 	/**
@@ -522,9 +524,9 @@ class Controls extends MovieClip {
 	 */
 	private function onPlayerMouseHide(event:PlayerEvents):Void
 	{
-		if (_seekBar.visible && _player.isFullscreen())
+		if (_controlsBar.visible && _player.isFullscreen())
 		{
-			Animation.slideOut(_seekBar, "bottom", 1000);
+			hideControls();
 		}
 	}
 	
@@ -536,13 +538,13 @@ class Controls extends MovieClip {
 	{
 		//Only use slidein effect on fullscreen since switching to windowed mode on
 		//hardware scaling causes a bug by a slow response on stage height changes
-		if (_player.isFullscreen() && !_seekBar.visible)
+		if (_player.isFullscreen() && !_controlsBar.visible)
 		{
-			Animation.slideIn(_seekBar, "bottom",1000);
+			_controlsBar.visible = true;
 		}
-		else
+		else if (!_controlsBar.visible)
 		{
-			_seekBar.visible = true;
+			_controlsBar.visible = true;
 		}
 	}
 	
@@ -567,9 +569,8 @@ class Controls extends MovieClip {
 		_seekPlayTimeLabel.setTextFormat(_textFormat);
 		
 		_seekPlayTimeLabel.y = _stage.stageHeight - _seekBar.height - _seekPlayTimeLabel.height - 1;
-		_seekPlayTimeLabel.x = clickPosition + (_seekPlayTimeLabel.width / 2);
-		
-		_seekPlayTimeLabel.backgroundColor = _brightColor;
+		_seekPlayTimeLabel.x = clickPosition + (_seekPlayTimeLabel.width / 2) + (_playControl.width + 10) * 2;
+		_seekPlayTimeLabel.backgroundColor = _darkColor;
 		_seekPlayTimeLabel.background = true;
 		_seekPlayTimeLabel.textColor = _controlColor;
 		_seekPlayTimeLabel.borderColor = _darkColor;
@@ -577,7 +578,7 @@ class Controls extends MovieClip {
 		
 		if (!_seekPlayTimeLabel.visible)
 		{
-			Animation.fadeIn(_seekPlayTimeLabel, 300);
+			_seekPlayTimeLabel.visible = true;
 		}
 	}
 	
@@ -587,7 +588,7 @@ class Controls extends MovieClip {
 	 */
 	private function onTrackMouseOut(event:MouseEvent):Void
 	{
-		Animation.fadeOut(_seekPlayTimeLabel, 300);
+		_seekPlayTimeLabel.visible = false;
 	}
 	
 	/**
@@ -609,7 +610,7 @@ class Controls extends MovieClip {
 	{
 		_thumb.graphics.lineStyle();
 		_thumb.graphics.beginFill(_hoverColor);
-		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
+		_thumb.graphics.drawRoundRect(0, (_seekBar.height/2)-(11/2), 11, 11, 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -619,9 +620,14 @@ class Controls extends MovieClip {
 	 */
 	private function onThumbMouseOut(event:MouseEvent):Void
 	{
-		_thumb.graphics.lineStyle();
-		_thumb.graphics.beginFill(_controlColor);
-		_thumb.graphics.drawRect(0, (_seekBar.height/2)-(10/2), 10, 10);
+		var matrix:Matrix = new Matrix(  );
+		matrix.createGradientBox(11, 11, Utils.degreesToRadians(-90), 11, 0);
+		var colors:Array<UInt> = [_controlColor, _controlColor];
+		var alphas:Array<Float> = [0.75, 1];
+		var ratios:Array<UInt> = [0, 255];
+		
+		_thumb.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		_thumb.graphics.drawRoundRect(0, (_seekBar.height / 2) - (11 / 2), 11, 11, 10, 10);
 		_thumb.graphics.endFill();
 	}
 	
@@ -643,8 +649,7 @@ class Controls extends MovieClip {
 	 */
 	private function redrawControls():Void
 	{	
-		drawSeekControls();
-		drawPlayingControls();
+		drawControls();
 		drawAspectRatioLabel();
 	}
 	
@@ -662,45 +667,84 @@ class Controls extends MovieClip {
 		}
 		
 		var position:Float = _player.getStartTime() / _player.getDuration();
-		//var startPosition:Float = (position * _track.width) + _track.x; //Old way
 		var startPosition:Float = (position > 0?(position * _track.width):0) + _track.x;
 		
 		_trackDownloaded.graphics.clear();
 		_trackDownloaded.graphics.lineStyle();
 		_trackDownloaded.x = startPosition;
-		_trackDownloaded.graphics.beginFill(_brightColor, 0xFFFFFF);
-		_trackDownloaded.graphics.drawRect(0, (_seekBar.height / 2) - (10 / 2), ((_track.width + _track.x) - _trackDownloaded.x) * _percentLoaded, 10);
+		_trackDownloaded.graphics.beginFill(_seekColor, 0.5);
+		_trackDownloaded.graphics.drawRoundRect(0, (_seekBar.height / 2) - (5 / 2), ((_track.width + _track.x) - _trackDownloaded.x) * _percentLoaded, 5, 3, 3);
 		_trackDownloaded.graphics.endFill();
 	}
 	
 	/**
-	 * Draws all seekbar controls
+	 * Draws NEW control bar player/seek controls
 	 */
-	private function drawSeekControls()
+	private function drawControls():Void
 	{
+		//Reset sprites for redraw
+		_controlsBar.graphics.clear();
+		_volumeTrack.graphics.clear();
+		_volumeSlider.graphics.clear();
+		_volumeSlider.visible = false;
+		_volumeTrack.visible = false;
+		
 		//Reset sprites for redraw
 		_seekBar.graphics.clear();
 		_track.graphics.clear();
 		_thumb.graphics.clear();
 		
-		//Draw seek bar
-		var _seekBarWidth:UInt = _stage.stageWidth;
-		var _seekBarHeight:UInt = 25;
-		_seekBar.x = 0;
-		_seekBar.y = _stage.stageHeight - _seekBarHeight;
+		//Draw controls bar
+		var barMargin = 10;
+		var barWidth = _stage.stageWidth;
+		var barHeight = _controlSize;
+		var barCenter = barWidth / 2;
+		var buttonSize = Std.int(((80 / 100) * (barHeight - (barMargin*2))));
+		
+		_controlsBar.x = 0;
+		_controlsBar.y = (_stage.stageHeight - barHeight);
+		
 		var matrix:Matrix = new Matrix(  );
-		matrix.createGradientBox(_seekBarWidth, _seekBarHeight, Utils.degreesToRadians(90), 0, 0);
+		matrix.createGradientBox(barWidth, barHeight, Utils.degreesToRadians(-90), barWidth, 0);
 		var colors:Array<UInt> = [_brightColor, _darkColor];
-		var alphas:Array<UInt> = [1, 1];
+		var alphas:Array<Float> = [1.0, 1];
 		var ratios:Array<UInt> = [0, 255];
+		_controlsBar.graphics.lineStyle();
+		_controlsBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		_controlsBar.graphics.drawRect(0, 2, barWidth, barHeight-2);
+		_controlsBar.graphics.endFill();
+		_controlsBar.graphics.beginFill(_darkColor, 1);
+		_controlsBar.graphics.drawRect(0, 0, barWidth, 1);
+		_controlsBar.graphics.endFill();
+		_controlsBar.graphics.beginFill(_brightColor, 1);
+		_controlsBar.graphics.drawRect(0, 1, barWidth, 1);
+		_controlsBar.graphics.endFill();
+		
+		//Draw seek bar
+		var _seekBarWidth = barWidth - (buttonSize+barMargin)*3 - (_playControl.x + _playControl.width + barMargin) - barMargin;
+		var _seekBarHeight = barHeight;
+		_seekBar.x = _playControl.x + _playControl.width + barMargin;
+		_seekBar.y = 0;
 		_seekBar.graphics.lineStyle();
-		_seekBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		_seekBar.graphics.beginFill(_darkColor, 0);
 		_seekBar.graphics.drawRect(0, 0, _seekBarWidth, _seekBarHeight);
 		_seekBar.graphics.endFill();
 
-		_textFormat.color = _controlColor;
+		//Draw playbutton
+		_playControl.setNormalColor(_controlColor);
+		_playControl.setHoverColor(_hoverColor);
+		_playControl.setPosition(barMargin, barMargin);
+		_playControl.setSize(buttonSize+5, buttonSize+5);
 		
+		//Draw pausebutton
+		_pauseControl.setNormalColor(_controlColor);
+		_pauseControl.setHoverColor(_hoverColor);
+		_pauseControl.setPosition(_playControl.x, _playControl.y);
+		_pauseControl.setSize(buttonSize+5, buttonSize+5);
+
 		//Draw current play time label
+		_textFormat.color = _seekColor;
+		_currentPlayTimeLabel.x = 0;
 		_currentPlayTimeLabel.y = _seekBarHeight - (_seekBarHeight / 2) - (_currentPlayTimeLabel.height / 2);
 		_currentPlayTimeLabel.antiAliasType = AntiAliasType.ADVANCED;
 		_currentPlayTimeLabel.setTextFormat(_textFormat);
@@ -715,96 +759,69 @@ class Controls extends MovieClip {
 		drawDownloadProgress();
 		
 		//Draw track place holder for drag
-		_track.x = _currentPlayTimeLabel.width;
-		_track.graphics.lineStyle(1, _controlColor);
-		_track.graphics.beginFill(_darkColor, 0);
-		_track.graphics.drawRect(0, (_seekBarHeight / 2) - (10 / 2), _seekBarWidth - _currentPlayTimeLabel.width - _totalPlayTimeLabel.width, 10);
+		_track.x = _currentPlayTimeLabel.x + _currentPlayTimeLabel.width + barMargin;
+		_track.graphics.lineStyle();
+		_track.graphics.beginFill(_seekColor, 0);
+		_track.graphics.drawRect(0, (_seekBarHeight / 2) - ((buttonSize+barMargin) / 2), _totalPlayTimeLabel.x - _totalPlayTimeLabel.width - barMargin - barMargin, buttonSize + barMargin);
+		_track.graphics.endFill();
+		
+		_track.graphics.lineStyle();
+		_track.graphics.beginFill(_seekColor, 0.3);
+		_track.graphics.drawRoundRect(0, (_seekBarHeight / 2) - (5 / 2), _totalPlayTimeLabel.x - _totalPlayTimeLabel.width - barMargin - barMargin, 5, 3, 3);
 		_track.graphics.endFill();
 		
 		//Draw thumb
-		_thumb.x = _currentPlayTimeLabel.width;
-		_thumb.graphics.lineStyle();
-		_thumb.graphics.beginFill(_controlColor);
-		_thumb.graphics.drawRect(0, (_seekBarHeight/2)-(10/2), 10, 10);
-		_thumb.graphics.endFill();
-	}
-	
-	/**
-	 * Draws control bar player controls
-	 */
-	private function drawPlayingControls():Void
-	{
-		//Reset sprites for redraw
-		_controlsBar.graphics.clear();
-		_volumeTrack.graphics.clear();
-		_volumeSlider.graphics.clear();
-		
-		//Draw controls bar
-		var barMargin = _stage.stageHeight < 330 ? 5 : 25;
-		var barHeight = _stage.stageHeight - _seekBar.height - (barMargin * 2);
-		var barWidth = _stage.stageHeight < 330 ? 45 : 60;
-		_controlsBar.x = (_stage.stageWidth - barWidth) + 20;
-		_controlsBar.y = barMargin;
-		
 		var matrix:Matrix = new Matrix(  );
-		matrix.createGradientBox(barWidth, barHeight, Utils.degreesToRadians(0), 0, barHeight);
-		var colors:Array<UInt> = [_brightColor, _darkColor];
-		var alphas:Array<Float> = [0.75, 0.75];
+		matrix.createGradientBox(11, 11, Utils.degreesToRadians(-90), 11, 0);
+		var colors:Array<UInt> = [_controlColor, _controlColor];
+		var alphas:Array<Float> = [0.75, 1];
 		var ratios:Array<UInt> = [0, 255];
-		_controlsBar.graphics.lineStyle();
-		_controlsBar.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
-		_controlsBar.graphics.drawRoundRect(0, 0, barWidth, barHeight, 20, 20);
-		_controlsBar.graphics.endFill();
 		
-		var topMargin:Float = _stage.stageHeight < 330 ? 5 : 10;
-		var barCenter:Float = (barWidth - 20) / 2;
-		var buttonSize:Float = ((80 / 100) * (barWidth - 20));
-		var buttonX:Float = buttonSize / 2;
+		_thumb.x = _currentPlayTimeLabel.width + _currentPlayTimeLabel.x + barMargin;
+		_thumb.graphics.lineStyle();
+		_thumb.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		//_thumb.graphics.beginFill(_controlColor);
+		_thumb.graphics.drawRoundRect(0, (_seekBarHeight/2)-(11/2), 11, 11, 10, 10);
+		_thumb.graphics.endFill();
 		
-		//Draw playbutton
-		_playControl.setNormalColor(_controlColor);
-		_playControl.setHoverColor(_hoverColor);
-		_playControl.setPosition(barCenter - buttonX, topMargin);
-		_playControl.setSize(buttonSize, buttonSize);
-		
-		//Draw pausebutton
-		_pauseControl.setNormalColor(_controlColor);
-		_pauseControl.setHoverColor(_hoverColor);
-		_pauseControl.setPosition(_playControl.x, topMargin);
-		_pauseControl.setSize(buttonSize, buttonSize);
+		//Draw volume icon
+		_volumeIcon.setNormalColor(_controlColor);
+		_volumeIcon.setHoverColor(_hoverColor);
+		_volumeIcon.setPosition(_seekBar.x + _seekBar.width + barMargin, _playControl.y+1);
+		_volumeIcon.setSize(buttonSize, buttonSize);
 		
 		//Draw aspec ratio button
 		_aspectRatioControl.setNormalColor(_controlColor);
 		_aspectRatioControl.setHoverColor(_hoverColor);
-		_aspectRatioControl.setPosition(_playControl.x, (_playControl.y + buttonSize) + topMargin);
+		_aspectRatioControl.setPosition(_volumeIcon.x + _volumeIcon.width + barMargin, _playControl.y+1);
 		_aspectRatioControl.setSize(buttonSize, buttonSize);
 		
 		//Draw fullscreen button
 		_fullscreenControl.setNormalColor(_controlColor);
 		_fullscreenControl.setHoverColor(_hoverColor);
-		_fullscreenControl.setPosition(_playControl.x, (_aspectRatioControl.y + _aspectRatioControl.height) + topMargin);
+		_fullscreenControl.setPosition(_aspectRatioControl.x + _aspectRatioControl.width + barMargin, _playControl.y+1);
 		_fullscreenControl.setSize(buttonSize, buttonSize);
 		
-		//Draw volume icon
-		_volumeIcon.setNormalColor(_controlColor);
-		_volumeIcon.setHoverColor(_hoverColor);
-		_volumeIcon.setPosition(_playControl.x, barHeight - _playControl.height - topMargin);
-		_volumeIcon.setSize(buttonSize, buttonSize);
-		
 		//Draw volume track
-		_volumeTrack.x = _playControl.x;
-		_volumeTrack.y = (_fullscreenControl.y + _fullscreenControl.height) + topMargin;
+		_volumeTrack.x = _controlsBar.width-(buttonSize+barMargin)*3;
+		_volumeTrack.y = -_controlsBar.height-2;
 		_volumeTrack.graphics.lineStyle(1, _controlColor);
 		_volumeTrack.graphics.beginFill(0x000000, 0);
-		_volumeTrack.graphics.drawRect(0, 0, _playControl.width / 2, _volumeIcon.y - (_fullscreenControl.y + _fullscreenControl.height) - (topMargin*2));
+		_volumeTrack.graphics.drawRect(0, 0, buttonSize, _controlsBar.height);
 		_volumeTrack.graphics.endFill();
-		_volumeTrack.x = barCenter - (_volumeTrack.width / 2);
 		
 		//Draw volume slider
+		var matrix:Matrix = new Matrix(  );
+		matrix.createGradientBox(_volumeTrack.width, _volumeTrack.height, Utils.degreesToRadians(-90), _volumeTrack.width, 0);
+		var colors:Array<UInt> = [_hoverColor, _hoverColor];
+		var alphas:Array<Float> = [0.75, 1];
+		var ratios:Array<UInt> = [0, 255];
+		
 		_volumeSlider.x = _volumeTrack.x;
 		_volumeSlider.y = _volumeTrack.y;
 		_volumeSlider.graphics.lineStyle();
-		_volumeSlider.graphics.beginFill(_controlColor, 1);
+		_volumeSlider.graphics.beginGradientFill(GradientType.LINEAR, colors, alphas, ratios, matrix);
+		//_volumeSlider.graphics.beginFill(_hoverColor, 1);
 		_volumeSlider.graphics.drawRect(0, 0, _volumeTrack.width, _volumeTrack.height);
 		_volumeSlider.graphics.endFill();
 		
@@ -829,8 +846,8 @@ class Controls extends MovieClip {
 		//Draw aspect ratio label container
 		_aspectRatioLabelContainer.x = _aspectRatioLabel.x - 10;
 		_aspectRatioLabelContainer.y = _aspectRatioLabel.y - 10;
-		_aspectRatioLabelContainer.graphics.lineStyle(3, _controlColor);
-		_aspectRatioLabelContainer.graphics.beginFill(_brightColor, 1);
+		_aspectRatioLabelContainer.graphics.lineStyle(0, _darkColor);
+		_aspectRatioLabelContainer.graphics.beginFill(_darkColor, 1);
 		_aspectRatioLabelContainer.graphics.drawRoundRect(0, 0, _aspectRatioLabel.width + 20, _aspectRatioLabel.height + 20, 15, 15);
 		_aspectRatioLabelContainer.graphics.endFill();
 		
@@ -848,8 +865,8 @@ class Controls extends MovieClip {
 	{
 		if(_controlsBar.visible)
 		{
-			drawPlayingControls();	
-			Animation.slideOut(_controlsBar, "right", 800);
+			drawControls();
+			Animation.slideOut(_controlsBar, "bottom", 800);
 		}
 	}
 	
@@ -860,8 +877,8 @@ class Controls extends MovieClip {
 	{
 		if(!_controlsBar.visible)
 		{
-			drawPlayingControls();	
-			Animation.slideIn(_controlsBar, "right", 800);
+			drawControls();
+			_controlsBar.visible = true;
 		}
 	}
 	//}
@@ -878,12 +895,28 @@ class Controls extends MovieClip {
 		_brightColor = colors[1].length > 0? Std.parseInt("0x" + colors[1]) : 0x4c4c4c;
 		_controlColor = colors[2].length > 0? Std.parseInt("0x" + colors[2]) : 0xFFFFFF;
 		_hoverColor = colors[3].length > 0? Std.parseInt("0x" + colors[3]) : 0x67A8C1;
+		_seekColor = colors[4].length > 0? Std.parseInt("0x" + colors[4]) : 0x7c7c7c;
+		
 		
 		var loaderColors:Array <String> = ["", ""];
-		loaderColors[0] = colors[1];
+		loaderColors[0] = colors[0];
 		loaderColors[1] = colors[2];
+		loaderColors[2] = colors[4];
 		_loader.setColors(loaderColors);
 		
+		redrawControls();
+	}
+	
+	/**
+	 * Sets the player controls size (height)
+	 * @param	size int: for e.g. 50
+	 */
+	public function setControlSize(size:Int):Void
+	{
+		if (size == 0)
+			return;
+		
+		_controlSize = size;
 		redrawControls();
 	}
 	

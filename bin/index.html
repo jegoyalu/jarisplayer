@@ -28,6 +28,26 @@
 			controlcolor: "FFFFFF",
 			hovercolor: "67A8C1"
 		};
+		var flashvarsVideoNewControls = {
+			source: "http://jaris.sourceforge.net/files/jaris-intro.flv",
+			type: "video",
+			streamtype: "file",
+			server: "",//Used for rtmp streams
+			duration: "52",
+			poster: "http://jaris.sourceforge.net/images/poster.png",
+			autostart: "false",
+			logo: "http://jaris.sourceforge.net/images/logo.png",
+			logoposition: "top left",
+			logoalpha: "30",
+			logowidth: "130",
+			logolink: "http://jaris.sourceforge.net",
+			hardwarescaling: "false",
+			darkcolor: "000000",
+			brightcolor: "4c4c4c",
+			controlcolor: "FFFFFF",
+			hovercolor: "67A8C1",
+			controltype: 1
+		};
 		var flashvarsAudio = {
 			source: "http://jaris.sourceforge.net/files/audio.mp3",
 			type: "audio",
@@ -60,6 +80,7 @@
 			id:"JarisFLVPlayer"
 		};
 		swfobject.embedSWF("JarisFLVPlayer.swf", "altContentOne", "576px", "360px", "10.0.0", "expressInstall.swf", flashvarsVideo, params, attributes);
+		swfobject.embedSWF("JarisFLVPlayer.swf", "altContentOneNewControls", "576px", "360px", "10.0.0", "expressInstall.swf", flashvarsVideoNewControls, params, attributes);
 		swfobject.embedSWF("JarisFLVPlayer.swf", "altContentTwo", "576px", "360px", "10.0.0", "expressInstall.swf", flashvarsAudio, params, attributes);
 	</script>
 	<style>
@@ -72,6 +93,17 @@
 	<center>
 	<h1>Video Example</h1>
 	<div id="altContentOne">
+		<h1>Jaris FLV Player</h1>
+		<p>Alternative content</p>
+		<p><a href="http://www.adobe.com/go/getflashplayer"><img 
+			src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" 
+			alt="Get Adobe Flash player" /></a></p>
+	</div>
+	
+	<br /><br />
+	
+	<h1>Video Example with New Controls</h1>
+	<div id="altContentOneNewControls">
 		<h1>Jaris FLV Player</h1>
 		<p>Alternative content</p>
 		<p><a href="http://www.adobe.com/go/getflashplayer"><img 

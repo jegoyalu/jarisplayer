@@ -1,14 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<project>
+<project version="2">
   <!-- Output SWF options -->
   <output>
-    <movie disabled="False" />
+    <movie outputType="Application" />
     <movie input="" />
     <movie path="bin\JarisFLVPlayer.swf" />
     <movie fps="30" />
     <movie width="800" />
     <movie height="600" />
     <movie version="10" />
+    <movie minorVersion="0" />
+    <movie platform="Flash Player" />
     <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
@@ -20,8 +22,7 @@
     <option directives="" />
     <option flashStrict="False" />
     <option mainClass="jaris.Main" />
-    <option override="False" />
-    <option verbose="False" />
+    <option enabledebug="False" />
     <option additional="" />
   </build>
   <!-- haxelib libraries -->
@@ -49,4 +50,6 @@
     <option showHiddenPaths="True" />
     <option testMovie="Default" />
   </options>
+  <!-- Plugin storage -->
+  <storage />
 </project>

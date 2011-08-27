@@ -1,4 +1,14 @@
-﻿﻿Jaris FLV Player v2.0.14 beta - 20/05/2011
+﻿Jaris FLV Player v2.0.15 beta - 27/08/2011
+
+	* New player controls
+	* New flashvar controltype (0=old, 1=new) to indicate the which controls to use
+	* New flashvar controlsize for new controls only
+	* New flashvar seekcolor for new controls only
+	* New flashvar buffertime to change the default 10 seconds buffer time for local/pseudo streaming
+	* Bugfix on loader bar
+	* All this changes thanks to Istvan Petres from http://jcore.net
+
+Jaris FLV Player v2.0.14 beta - 20/05/2011
 
 	* Removed some trace calls on youtube playback.
 

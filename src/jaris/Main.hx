@@ -33,6 +33,7 @@ import jaris.display.Logo;
 import jaris.display.Menu;
 import jaris.display.Poster;
 import jaris.player.controls.Controls;
+import jaris.player.newcontrols.NewControls;
 import jaris.player.JsApi;
 import jaris.player.InputType;
 import jaris.player.Player;
@@ -73,6 +74,7 @@ class Main
 			var streamType:String = parameters.streamtype != "" && parameters.streamtype != null? parameters.streamtype : StreamType.FILE;
 			var server:String = parameters.server != "" && parameters.server != null? parameters.server : "";
 			var aspectRatio:String = parameters.aspectratio != "" && parameters.aspectratio != null? parameters.aspectratio : "";
+			var bufferTime:Float = parameters.buffertime != "" && parameters.buffertime != null? Std.parseFloat(parameters.buffertime) : 0;
 			
 			if (aspectRatio != "" && !userSettings.isSet("aspectratio"))
 			{
@@ -105,6 +107,7 @@ class Main
 			player.setStreamType(streamType);
 			player.setServer(server);
 			player.setVolume(userSettings.getVolume());
+			player.setBufferTime(bufferTime);
 			
 			if (autoStart)
 			{
@@ -161,17 +164,28 @@ class Main
 		if (parameters.controls != "false")
 		{
 			var duration:String = parameters.duration != "" && parameters.duration != null? parameters.duration : "0";
-			var controls:Controls = new Controls(player);
+			var controlType:Int = parameters.controltype != "" && parameters.controltype != null? Std.parseInt(parameters.controltype) : 0;
+			var controlSize:Int = parameters.controlsize != "" && parameters.controlsize != null? Std.parseInt(parameters.controlsize) : 0;
 			
-			var controlColors:Array <String> = ["", "", "", ""];
+			var controlColors:Array <String> = ["", "", "", "", ""];
 			controlColors[0] = parameters.darkcolor != null ? parameters.darkcolor : "";
 			controlColors[1] = parameters.brightcolor != null ? parameters.brightcolor : "";
 			controlColors[2] = parameters.controlcolor != null ? parameters.controlcolor : "";
 			controlColors[3] = parameters.hovercolor != null ? parameters.hovercolor : "";
+			controlColors[4] = parameters.seekcolor != null ? parameters.seekcolor : "";
 			
-			controls.setDurationLabel(duration);
-			controls.setControlColors(controlColors);
-			movieClip.addChild(controls);
+			if (controlType == 1) {
+				var controls:NewControls = new NewControls(player);
+				controls.setDurationLabel(duration);
+				controls.setControlColors(controlColors);
+				controls.setControlSize(controlSize);
+				movieClip.addChild(controls);
+			} else {
+				var controls:Controls = new Controls(player);
+				controls.setDurationLabel(duration);
+				controls.setControlColors(controlColors);
+				movieClip.addChild(controls);
+			}
 		}
 		
 		//Loop the video

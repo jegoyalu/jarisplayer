@@ -70,6 +70,7 @@ class Player extends EventDispatcher
 	private var _fullscreen:Bool;
 	private var _soundMuted:Bool;
 	private var _volume:Float;
+	private var _bufferTime:Float;
 	private var _mouseVisible:Bool;
 	private var _mediaLoaded:Bool;
 	private var _hideMouseTimer:Timer;
@@ -116,6 +117,7 @@ class Player extends EventDispatcher
 		_mouseVisible = true;
 		_soundMuted = false;
 		_volume = 1.0;
+		_bufferTime = 10;
 		_fullscreen = false;
 		_mediaLoaded = false;
 		_hideMouseTimer = new Timer(1500);
@@ -856,7 +858,7 @@ class Player extends EventDispatcher
 			_connection.connect(null);
 			_stream = new NetStream(_connection);
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
-			_stream.bufferTime = 10;
+			_stream.bufferTime = _bufferTime;
 			_stream.play(source);
 			_stream.client = this;
 			_video.attachNetStream(_stream);
@@ -1487,6 +1489,18 @@ class Player extends EventDispatcher
 		_userSettings.setVolume(_volume);
 
 		callEvents(PlayerEvents.VOLUME_CHANGE);
+	}
+	
+	/**
+	 * Changes the buffer time for local and pseudo streaming
+	 * @param	time in seconds
+	 */
+	public function setBufferTime(time:Float):Void
+	{
+		if (time > 0)
+		{
+			_bufferTime = time;
+		}
 	}
 	
 	/**

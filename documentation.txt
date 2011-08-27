@@ -89,6 +89,15 @@ Here is the list of variables that you can pass to the player.
 	  
 	* controls:
 	  To disable the displaying of controls, values: false to hide otherwise defaults to show
+	  
+	* controltype
+	  Choose which controls to displa. 0 = old controls, 1 = new controls
+	  
+	* controlsize
+	  Changes the height of the new controllers, the default value is 40
+	  
+	* seekcolor
+	  Change the seekbar color (new controls only)
     
 	* darkcolor:
       The darker color of player controls in html hexadecimal format
@@ -110,6 +119,9 @@ Here is the list of variables that you can pass to the player.
 	  
 	* loop:
 	  As the variable says this keeps looping the video. Set to any value to enable.
+	  
+	* buffertime
+	  To change the default 10 seconds buffer time for local/pseudo streaming
 
 ==================	  
 Keyboard Shortcuts
