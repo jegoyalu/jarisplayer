@@ -43,6 +43,6 @@ Jaris is licensed under GPL and LGPL, meaning that you could use it commercially
 What we ask for is that any improvements made to the player should be taken back to jaris flv website 
 so that any one could enjoy the new improvements or features also. In this way everyone could 
 help to maintain an up to date tool that adapts to todays multimedia demands. 
-Using sourceforge.net you could send a patch http://sourceforge.net/projects/jaris/.
+Using github you can fork the project, work on your changes, and send a pull request.
 
 Enjoy a totally free player ;-)
