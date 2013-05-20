@@ -109,7 +109,7 @@ class JsApi extends MovieClip {
 		ExternalInterface.addCallback("api_pause", setPause);
 		ExternalInterface.addCallback("api_seek", setSeek);
 		ExternalInterface.addCallback("api_volume", setVolume);
-	
+		ExternalInterface.addCallback("api_loadVideo", loadVideo);
 
 	}
 		
@@ -227,6 +227,16 @@ class JsApi extends MovieClip {
 		
 		_player.setVolume(vol);
 	}	
-		
+	
+	/**
+	 * Loads another video
+	 */
+	private function loadVideo(source:String, type:String="video", streamType:String="file", server:String=""):Void
+	{
+		if (_player.isPlaying()==true) {
+			_player.togglePlay();
+		}
+		_player.load(source, type, streamType, server);
+	}	
 	
 }
