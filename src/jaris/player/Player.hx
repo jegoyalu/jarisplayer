@@ -858,6 +858,7 @@ class Player extends EventDispatcher
 			_connection.connect(null);
 			_stream = new NetStream(_connection);
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			_stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, doAsyncError);
 			_stream.bufferTime = _bufferTime;
 			_stream.play(source);
 			_stream.client = this;
@@ -875,6 +876,11 @@ class Player extends EventDispatcher
 		{
 			_sound.load(new URLRequest(source));
 		}
+	}
+	
+	private function doAsyncError(e:AsyncErrorEvent) : Void
+	{
+		// Do nothing, to block the exception.
 	}
 	
 	/**
