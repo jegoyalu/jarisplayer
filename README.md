@@ -54,5 +54,5 @@ and run:
 
   haxe build.xml
 
-This will result on the JarisFLVPlayer.swf file which you can embed in your web sites
-as integrate as part of other projects.
+JarisFLVPlayer.swf will be generated on the **bin** directory which you can embed in 
+your web sites as integrate as part of other projects.

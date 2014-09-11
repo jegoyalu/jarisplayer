@@ -66,7 +66,7 @@ class JsApi extends MovieClip {
 	private var _player:Player;
 	private var _isBuffering:Bool;
 	private var _percentLoaded:Float;
-	private var _externalListeners:Hash<String>;
+	private var _externalListeners:Map<String, String>;
 	
 	//}
 	
@@ -75,7 +75,7 @@ class JsApi extends MovieClip {
 	public function new(player:Player)
 	{
 		super();
-		_externalListeners = new Hash<String>();
+		_externalListeners = new Map<String, String>();
 
 		Security.allowDomain("*");
 		
@@ -144,7 +144,7 @@ class JsApi extends MovieClip {
 	public function removeJsListener(attribute:String):Void {		
 		if (attribute == '*') 
 		{
-			_externalListeners = new Hash<String>();
+			_externalListeners = new Map<String, String>();
 			return;
 		}
 		_externalListeners.remove(attribute.toLowerCase());
