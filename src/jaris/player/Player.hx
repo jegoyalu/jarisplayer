@@ -1,4 +1,4 @@
-﻿/**    
+/**    
  * @author Jefferson González
  * @copyright 2010 Jefferson González
  *
@@ -317,41 +317,34 @@ class Player extends EventDispatcher
 		var M_KEY:UInt = 77;
 		var X_KEY:UInt = 88;
 		
-		if(event.keyCode == Keyboard.TAB)
+		switch(event.keyCode)
 		{
-			toggleAspectRatio();
-		}
-		else if(event.keyCode == F_KEY)
-		{
-			toggleFullscreen();
-		}
-		else if(event.keyCode == M_KEY)
-		{
-			toggleMute();
-		}
-		else if(event.keyCode == Keyboard.UP)
-		{
-			volumeUp();
-		}
-		else if(event.keyCode == Keyboard.DOWN)
-		{
-			volumeDown();
-		}
-		else if(event.keyCode == Keyboard.RIGHT)
-		{
-			forward();
-		}
-		else if(event.keyCode == Keyboard.LEFT)
-		{
-			rewind();
-		}
-		else if(event.keyCode == Keyboard.SPACE)
-		{
-			togglePlay();
-		}
-		else if(event.keyCode == X_KEY)
-		{
-			stopAndClose();
+			case Keyboard.TAB:
+				toggleAspectRatio();
+			
+			case F_KEY:
+				toggleFullscreen();
+				
+			case M_KEY:
+				toggleMute();
+				
+			case Keyboard.UP:
+				volumeUp();
+				
+			case Keyboard.DOWN:
+				volumeDown();
+				
+			case Keyboard.RIGHT:
+				forward();
+				
+			case Keyboard.LEFT:
+				rewind();
+				
+			case Keyboard.SPACE:
+				togglePlay();
+				
+			case X_KEY:
+				stopAndClose();
 		}
 	}
 	
@@ -865,6 +858,7 @@ class Player extends EventDispatcher
 			_connection.connect(null);
 			_stream = new NetStream(_connection);
 			_stream.addEventListener(NetStatusEvent.NET_STATUS, onNetStatus);
+			_stream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, doAsyncError);
 			_stream.bufferTime = _bufferTime;
 			_stream.play(source);
 			_stream.client = this;
@@ -882,6 +876,11 @@ class Player extends EventDispatcher
 		{
 			_sound.load(new URLRequest(source));
 		}
+	}
+	
+	private function doAsyncError(e:AsyncErrorEvent) : Void
+	{
+		// Do nothing, to block the exception.
 	}
 	
 	/**
