@@ -46,3 +46,13 @@ help to maintain an up to date tool that adapts to todays multimedia demands.
 Using github you can fork the project, work on your changes, and send a pull request.
 
 Enjoy a totally free player ;-)
+
+##Compiling from source
+
+Install [haxe](http://haxe.org/) change to the directory where jaris sources reside
+and run:
+
+  haxe build.xml
+
+This will result on the JarisFLVPlayer.swf file which you can embed in your web sites
+as integrate as part of other projects.
