@@ -6,6 +6,8 @@
 
 #Flash target
 -swf bin/JarisFLVPlayer.swf
+-swf-header 800:600:30:000000
+-swf-version 11.2
 
 #Uncomment to enable debug
 #-debug
