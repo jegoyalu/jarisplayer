@@ -317,34 +317,41 @@ class Player extends EventDispatcher
 		var M_KEY:UInt = 77;
 		var X_KEY:UInt = 88;
 		
-		switch(event.keyCode)
+		if(event.keyCode == Keyboard.TAB)
 		{
-			case Keyboard.TAB:
-				toggleAspectRatio();
-			
-			case F_KEY:
-				toggleFullscreen();
-				
-			case M_KEY:
-				toggleMute();
-				
-			case Keyboard.UP:
-				volumeUp();
-				
-			case Keyboard.DOWN:
-				volumeDown();
-				
-			case Keyboard.RIGHT:
-				forward();
-				
-			case Keyboard.LEFT:
-				rewind();
-				
-			case Keyboard.SPACE:
-				togglePlay();
-				
-			case X_KEY:
-				stopAndClose();
+			toggleAspectRatio();
+		}
+		else if(event.keyCode == F_KEY)
+		{
+			toggleFullscreen();
+		}
+		else if(event.keyCode == M_KEY)
+		{
+			toggleMute();
+		}
+		else if(event.keyCode == Keyboard.UP)
+		{
+			volumeUp();
+		}
+		else if(event.keyCode == Keyboard.DOWN)
+		{
+			volumeDown();
+		}
+		else if(event.keyCode == Keyboard.RIGHT)
+		{
+			forward();
+		}
+		else if(event.keyCode == Keyboard.LEFT)
+		{
+			rewind();
+		}
+		else if(event.keyCode == Keyboard.SPACE)
+		{
+			togglePlay();
+		}
+		else if(event.keyCode == X_KEY)
+		{
+			stopAndClose();
 		}
 	}
 	
