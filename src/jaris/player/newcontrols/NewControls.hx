@@ -276,10 +276,10 @@ class NewControls extends MovieClip {
 		{
 			if (_controlsVisible)
 			{
-				if (_stage.mouseX < _controlsBar.x || 
+				if (_stage.mouseX <= 1 || 
 					_stage.mouseX >= _stage.stageWidth - 1 || 
 					_stage.mouseY >= _stage.stageHeight - 1 ||
-					_stage.mouseY <= 1
+					_stage.mouseY < _controlsBar.y
 				   )
 				{
 					_controlsVisible = false;
