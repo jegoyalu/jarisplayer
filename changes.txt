@@ -3,6 +3,8 @@
     * Disabled second parameter when calling play() on a rtmp source.
     * Disabled rtmpSourceParser() because it is causing issues.
     * Added rtmp notes to documentation.txt
+    * fix new control do not autohide bug thanks to Michelangelo
+    * fix new control vertical check thanks to Michelangelo
 
 Jaris FLV Player v2.0.16 - 11/09/2014
 
@@ -128,4 +130,3 @@ Jaris FLV Player v1.0 - 05/21/2008
     * Display the actual playing time and total time.
     * Support for logo image on the fly.
     * Flag to autostart the video on player load.
-
