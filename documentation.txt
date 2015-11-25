@@ -91,7 +91,7 @@ Here is the list of variables that you can pass to the player.
       The type of file to play, allowable values are: audio, video.
 
     * streamtype:
-      The stream type of the file, allowable values are: file, http, rmtp, youtube.
+      The stream type of the file, allowable values are: file, http, rtmp, youtube.
 
     * server:
       Used in coordination with rtmp stream servers
